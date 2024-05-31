@@ -25,7 +25,7 @@ connection.connect((err) => {
 app.use(express.json());
 
 //get all users
-app.get("/api/get/users", (_rep, res) => {
+app.get("/api/get/users", auth, (_rep, res) => {
     try {
         connection.query('select * from users;', [],
             (_err, data, _fil) => {
@@ -57,7 +57,7 @@ app.get("/api/get/users", (_rep, res) => {
 })
 
 //get user by emp_id
-app.get('/api/get/user', (req, res) => {
+app.get('/api/get/user', auth, (req, res) => {
     var id = req.query.id
     if (id) {
         try {
@@ -100,7 +100,7 @@ app.get('/api/get/user', (req, res) => {
 })
 
 //create user
-app.post("/api/create/user", (req, res) => {
+app.post("/api/create/user", auth, (req, res) => {
     const { user_email, user_password, access, emp_id } = req.body
     if (user_email && user_password && access && emp_id) {
         try {
@@ -130,7 +130,7 @@ app.post("/api/create/user", (req, res) => {
 })
 
 //update user
-app.put("/api/update/user", (req, res) => {
+app.put("/api/update/user", auth, (req, res) => {
     const { user_id, user_email, user_password, access, emp_id } = req.body
     if (user_id && user_email && user_password && access && emp_id) {
         try {
@@ -194,7 +194,7 @@ app.get('/api/get/emps', auth, (_rep, res) => {
 })
 
 //get employee by emp_id
-app.get('/api/get/emp', (req, res) => {
+app.get('/api/get/emp', auth, (req, res) => {
     var id = req.query.id
     if (id) {
         try {
@@ -237,7 +237,7 @@ app.get('/api/get/emp', (req, res) => {
 })
 
 //login
-app.get('/api/login', (req, res) => {
+app.post('/api/login', (req, res) => {
     try {
         const { user_email, user_password } = req.body;
         if (!(user_email && user_password)) {
@@ -331,4 +331,4 @@ app.get('/api/login', (req, res) => {
     }
 })
 
-app.listen(8080, () => console.log("server is running on port 8080"));
+app.listen(4000, () => console.log("server is running on port 4000"));
