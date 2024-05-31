@@ -24,6 +24,8 @@ connection.connect((err) => {
 
 app.use(express.json());
 
+//users
+
 //get all users
 app.get("/api/get/users", auth, (_rep, res) => {
     try {
@@ -161,6 +163,9 @@ app.put("/api/update/user", auth, (req, res) => {
     }
 })
 
+
+//employees
+
 //get all employees
 app.get('/api/get/emps', auth, (_rep, res) => {
     try {
@@ -236,6 +241,417 @@ app.get('/api/get/emp', auth, (req, res) => {
     }
 })
 
+
+//indicators
+
+//get all indicators
+app.get('/api/get/indicators', auth, (_req, res) => {
+    try {
+        connection.query('select * from indicators', [],
+            (_err, data, _fil) => {
+                if (data && data[0]) {
+                    return res.status(200).json({
+                        RespCode: 200,
+                        RespMessage: 'success',
+                        log: data
+                    })
+                }
+                else {
+                    console.log('Err : not found data.')
+                    return res.status(400).json({
+                        RespCode: 400,
+                        RespMessage: 'bad: not found data.',
+                        log: 1
+                    })
+                }
+            }
+        )
+    }
+    catch (err) {
+        console.log("Err :", err)
+        return res.status(400).json({
+            RespCode: 400,
+            RespMessage: 'bad',
+            log: 0
+        })
+    }
+})
+
+//create indicator
+app.post('/api/create/indicator', auth, (req, res) => {
+    try {
+        const { title, type_access, group_id } = req.body;
+        if (!(title && type_access && group_id)) {
+            return res.status(400).json({
+                RespCode: 400,
+                RespMessage: 'Invalid input data',
+                log: 0
+            });
+        }
+
+        connection.query(
+            "insert into indicators(title,type_access,group_id) values(?,?,?)",
+            [title, type_access, group_id],
+            (err, _results, _fields) => {
+                if (err) {
+                    return res.status(500).json({
+                        RespCode: 500,
+                        RespMessage: 'Database query error',
+                        log: err
+                    });
+                }
+
+                connection.query('select * from indicators', [],
+                    (_err, data, _fil) => {
+                        if (err) {
+                            return res.status(500).json({
+                                RespCode: 500,
+                                RespMessage: 'Database query error',
+                                log: err
+                            });
+                        }
+
+                        connection.query('select * from indicators where idt_id = ?', [data.const()],
+                            (_err, data, _fil) => {
+                                if (err) {
+                                    return res.status(500).json({
+                                        RespCode: 500,
+                                        RespMessage: 'Database query error',
+                                        log: err
+                                    });
+                                }
+
+                                return res.status(200).json({
+                                    RespCode: 200,
+                                    RespMessage: 'success',
+                                    log: data
+                                })
+                            }
+                        )
+                    }
+                )
+            }
+        )
+
+    } catch (err) {
+        console.log('Err:', err);
+        return res.status(500).json({
+            RespCode: 500,
+            RespMessage: 'Internal server error',
+            log: 0
+        });
+    }
+})
+
+
+//groups
+
+//get all groups
+app.get('/api/get/groups', auth, (_req, res) => {
+    try {
+        connection.query('select * from groups', [],
+            (_err, data, _fil) => {
+                if (data && data[0]) {
+                    return res.status(200).json({
+                        RespCode: 200,
+                        RespMessage: 'success',
+                        log: data
+                    })
+                }
+                else {
+                    console.log('Err : not found data.')
+                    return res.status(400).json({
+                        RespCode: 400,
+                        RespMessage: 'bad: not found data.',
+                        log: 1
+                    })
+                }
+            }
+        )
+    }
+    catch (err) {
+        console.log("Err :", err)
+        return res.status(400).json({
+            RespCode: 400,
+            RespMessage: 'bad',
+            log: 0
+        })
+    }
+})
+
+//create group
+app.post('/api/create/group', auth, (req, res) => {
+    try {
+        const { title } = req.body;
+        if (!(title)) {
+            return res.status(400).json({
+                RespCode: 400,
+                RespMessage: 'Invalid input data',
+                log: 0
+            });
+        }
+
+        connection.query(
+            "insert into groups(title) values(?)",
+            [title],
+            (err, _results, _fields) => {
+                if (err) {
+                    return res.status(500).json({
+                        RespCode: 500,
+                        RespMessage: 'Database query error',
+                        log: err
+                    });
+                }
+
+                connection.query('select * from groups', [],
+                    (_err, data, _fil) => {
+                        if (err) {
+                            return res.status(500).json({
+                                RespCode: 500,
+                                RespMessage: 'Database query error',
+                                log: err
+                            });
+                        }
+
+                        connection.query('select * from groups where group_id = ?', [data.const()],
+                            (_err, data, _fil) => {
+                                if (err) {
+                                    return res.status(500).json({
+                                        RespCode: 500,
+                                        RespMessage: 'Database query error',
+                                        log: err
+                                    });
+                                }
+
+                                return res.status(200).json({
+                                    RespCode: 200,
+                                    RespMessage: 'success',
+                                    log: data
+                                })
+                            }
+                        )
+                    }
+                )
+            }
+        )
+
+    } catch (err) {
+        console.log('Err:', err);
+        return res.status(500).json({
+            RespCode: 500,
+            RespMessage: 'Internal server error',
+            log: 0
+        });
+    }
+})
+
+
+//score levels
+
+//get all score levels
+app.get('/api/get/score/levels', auth, (_req, res) => {
+    try {
+        connection.query('select * score_levels', [],
+            (_err, data, _fil) => {
+                if (data && data[0]) {
+                    return res.status(200).json({
+                        RespCode: 200,
+                        RespMessage: 'success',
+                        log: data
+                    })
+                }
+                else {
+                    console.log('Err : not found data.')
+                    return res.status(400).json({
+                        RespCode: 400,
+                        RespMessage: 'bad: not found data.',
+                        log: 1
+                    })
+                }
+            }
+        )
+    }
+    catch (err) {
+        console.log("Err :", err)
+        return res.status(400).json({
+            RespCode: 400,
+            RespMessage: 'bad',
+            log: 0
+        })
+    }
+})
+
+//create score level
+app.post('/api/score/level', auth, (req, res) => {
+    try {
+        const { emp_type,scr_g1,scr_g2,scr_g3 } = req.body;
+        if (!(emp_type&&scr_g1&&scr_g2&&scr_g3)) {
+            return res.status(400).json({
+                RespCode: 400,
+                RespMessage: 'Invalid input data',
+                log: 0
+            });
+        }
+
+        connection.query(
+            "insert into score_levels(emp_type,scr_g1,scr_g2,scr_g3) values(?,?,?,?)",
+            [emp_type,scr_g1,scr_g2,scr_g3],
+            (err, _results, _fields) => {
+                if (err) {
+                    return res.status(500).json({
+                        RespCode: 500,
+                        RespMessage: 'Database query error',
+                        log: err
+                    });
+                }
+
+                connection.query('select * from score_levels', [],
+                    (_err, data, _fil) => {
+                        if (err) {
+                            return res.status(500).json({
+                                RespCode: 500,
+                                RespMessage: 'Database query error',
+                                log: err
+                            });
+                        }
+
+                        connection.query('select * from score_levels where sl_id = ?', [data.const()],
+                            (_err, data, _fil) => {
+                                if (err) {
+                                    return res.status(500).json({
+                                        RespCode: 500,
+                                        RespMessage: 'Database query error',
+                                        log: err
+                                    });
+                                }
+
+                                return res.status(200).json({
+                                    RespCode: 200,
+                                    RespMessage: 'success',
+                                    log: data
+                                })
+                            }
+                        )
+                    }
+                )
+            }
+        )
+
+    } catch (err) {
+        console.log('Err:', err);
+        return res.status(500).json({
+            RespCode: 500,
+            RespMessage: 'Internal server error',
+            log: 0
+        });
+    }
+})
+
+
+//score types
+
+//get all score types
+app.get('/api/get/score/types', auth, (_req, res) => {
+    try {
+        connection.query('select * score_types', [],
+            (_err, data, _fil) => {
+                if (data && data[0]) {
+                    return res.status(200).json({
+                        RespCode: 200,
+                        RespMessage: 'success',
+                        log: data
+                    })
+                }
+                else {
+                    console.log('Err : not found data.')
+                    return res.status(400).json({
+                        RespCode: 400,
+                        RespMessage: 'bad: not found data.',
+                        log: 1
+                    })
+                }
+            }
+        )
+    }
+    catch (err) {
+        console.log("Err :", err)
+        return res.status(400).json({
+            RespCode: 400,
+            RespMessage: 'bad',
+            log: 0
+        })
+    }
+})
+
+//create score type
+app.post('/api/score/type', auth, (req, res) => {
+    try {
+        const { s_range,s_type } = req.body;
+        if (!(s_range&&s_type)) {
+            return res.status(400).json({
+                RespCode: 400,
+                RespMessage: 'Invalid input data',
+                log: 0
+            });
+        }
+
+        connection.query(
+            "insert into score_types(s_range,s_type) values(?,?)",
+            [s_range,s_type],
+            (err, _results, _fields) => {
+                if (err) {
+                    return res.status(500).json({
+                        RespCode: 500,
+                        RespMessage: 'Database query error',
+                        log: err
+                    });
+                }
+
+                connection.query('select * from score_types', [],
+                    (_err, data, _fil) => {
+                        if (err) {
+                            return res.status(500).json({
+                                RespCode: 500,
+                                RespMessage: 'Database query error',
+                                log: err
+                            });
+                        }
+
+                        connection.query('select * from score_types where st_id = ?', [data.const()],
+                            (_err, data, _fil) => {
+                                if (err) {
+                                    return res.status(500).json({
+                                        RespCode: 500,
+                                        RespMessage: 'Database query error',
+                                        log: err
+                                    });
+                                }
+
+                                return res.status(200).json({
+                                    RespCode: 200,
+                                    RespMessage: 'success',
+                                    log: data
+                                })
+                            }
+                        )
+                    }
+                )
+            }
+        )
+
+    } catch (err) {
+        console.log('Err:', err);
+        return res.status(500).json({
+            RespCode: 500,
+            RespMessage: 'Internal server error',
+            log: 0
+        });
+    }
+})
+
+
+//login
+
 //login
 app.post('/api/login', (req, res) => {
     try {
@@ -281,7 +697,7 @@ app.post('/api/login', (req, res) => {
                                 if (results.length > 0) {
                                     const employee = results[0];
                                     const token = jwt.sign(
-                                        { user_id: user.user_id, user_email},
+                                        { user_id: user.user_id, user_email },
                                         process.env.TOKEN_KEY,
                                         {
                                             expiresIn: "2h"
