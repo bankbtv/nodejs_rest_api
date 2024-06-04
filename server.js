@@ -451,7 +451,7 @@ app.post('/api/create/group', auth, (req, res) => {
 //get all score levels
 app.get('/api/get/score/levels', auth, (_req, res) => {
     try {
-        connection.query('select * score_levels', [],
+        connection.query('select * from score_levels', [],
             (_err, data, _fil) => {
                 if (data && data[0]) {
                     return res.status(200).json({
@@ -553,7 +553,7 @@ app.post('/api/score/level', auth, (req, res) => {
 //get all score types
 app.get('/api/get/score/types', auth, (_req, res) => {
     try {
-        connection.query('select * score_types', [],
+        connection.query('select * from score_types', [],
             (_err, data, _fil) => {
                 if (data && data[0]) {
                     return res.status(200).json({
