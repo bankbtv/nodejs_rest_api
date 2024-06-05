@@ -112,7 +112,7 @@ app.post("/api/create/user", auth, (req, res) => {
                 (_err, results, _fields) => {
                     if (results && results[0]) {
                         console.log("user exit")
-                        return res.status(300).send();
+                        return res.status(300).json({ message: "user exit" })
                     }
                     connection.query(
                         "insert into users(user_email,user_password,access,emp_id) values(?,MD5(?),?,?)",
@@ -120,7 +120,7 @@ app.post("/api/create/user", auth, (req, res) => {
                         (err, _results, _fields) => {
                             if (err) {
                                 console.log("error while inserting a user into the database", err)
-                                return res.status(400).send();
+                                return res.status(400).json({ message: "error while inserting a user into the database", err })
                             }
                             return res.status(200).json({ message: "new user successfully created!" })
                         }
