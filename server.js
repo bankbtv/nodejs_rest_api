@@ -303,6 +303,9 @@ app.get('/api/get/indicators', auth, (_req, res) => {
         connection.query('select * from indicators', [],
             (_err, data, _fil) => {
                 if (data && data[0]) {
+                    data.forEach(element => {
+                        element.type_access=element.type_access.split(",");
+                    });
                     return res.status(200).json({
                         RespCode: 200,
                         RespMessage: 'success',
