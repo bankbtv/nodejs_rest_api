@@ -163,6 +163,38 @@ app.put("/api/update/user", auth, (req, res) => {
     }
 })
 
+//reset user password
+app.put("/api/reset/user", auth, (req, res) => {
+    const { user_id} = req.body
+    if (user_id) {
+        try {
+            connection.query(
+                "update users set user_password = MD5(?) where user_id = ?",
+                [1234, user_id],
+                (err, results, _fields) => {
+                    if (results) {
+                        return res.status(201).json({ message: "success." });
+                    }
+                    else {
+                        console.log(err);
+                        return res.status(500).send();
+                    }
+                }
+            )
+        } catch (error) {
+            console.log(err);
+            return res.status(500).send();
+        }
+    }
+    else {
+        return res.status(400).json({
+            RespCode: 400,
+            RespMessage: `Invalid input data`,
+            log: 0
+        })
+    }
+})
+
 
 //employees
 
