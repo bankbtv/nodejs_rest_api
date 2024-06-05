@@ -107,14 +107,24 @@ app.post("/api/create/user", auth, (req, res) => {
     if (user_email && user_password && access && emp_id) {
         try {
             connection.query(
-                "insert into users(user_email,user_password,access,emp_id) values(?,MD5(?),?,?)",
-                [user_email, user_password, access, emp_id],
-                (err, _results, _fields) => {
-                    if (err) {
-                        console.log("error while inserting a user into the database", err)
-                        return res.status(400).send();
+                "select * from users where user_email = ?",
+                [user_email],
+                (_err, results, _fields) => {
+                    if (results && results[0]) {
+                        console.log("user exit")
+                        return res.status(300).send();
                     }
-                    return res.status(201).json({ message: "new user successfully created!" })
+                    connection.query(
+                        "insert into users(user_email,user_password,access,emp_id) values(?,MD5(?),?,?)",
+                        [user_email, user_password, access, emp_id],
+                        (err, _results, _fields) => {
+                            if (err) {
+                                console.log("error while inserting a user into the database", err)
+                                return res.status(400).send();
+                            }
+                            return res.status(200).json({ message: "new user successfully created!" })
+                        }
+                    )
                 }
             )
         } catch (error) {
@@ -137,16 +147,27 @@ app.put("/api/update/user", auth, (req, res) => {
     if (user_id && user_email && user_password && access && emp_id) {
         try {
             connection.query(
-                "update users set user_email = ?,user_password = MD5(?), access = ?, emp_id = ? where user_id = ?",
-                [user_email, user_password, access, emp_id, user_id],
-                (err, results, _fields) => {
-                    if (results) {
-                        return res.status(201).json({ message: "success." });
+                "select * from users where user_email = ?",
+                [user_email],
+                (_err, results, _fields) => {
+                    if (results && results[0]) {
+                        console.log("user exit")
+                        return res.status(300).send();
                     }
-                    else {
-                        console.log(err);
-                        return res.status(500).send();
-                    }
+                    connection.query(
+                        "update users set user_email = ?,user_password = MD5(?), access = ?, emp_id = ? where user_id = ?",
+                        [user_email, user_password, access, emp_id, user_id],
+                        (err, results, _fields) => {
+                            if (results) {
+                                return res.status(201).json({ message: "success." });
+                            }
+                            else {
+                                console.log(err);
+                                return res.status(500).send();
+                            }
+                        }
+                    )
+
                 }
             )
         } catch (error) {
@@ -165,7 +186,7 @@ app.put("/api/update/user", auth, (req, res) => {
 
 //reset user password
 app.put("/api/reset/user", auth, (req, res) => {
-    const { user_id} = req.body
+    const { user_id } = req.body
     if (user_id) {
         try {
             connection.query(
@@ -516,8 +537,8 @@ app.get('/api/get/score/levels', auth, (_req, res) => {
 //create score level
 app.post('/api/score/level', auth, (req, res) => {
     try {
-        const { emp_type,scr_g1,scr_g2,scr_g3 } = req.body;
-        if (!(emp_type&&scr_g1&&scr_g2&&scr_g3)) {
+        const { emp_type, scr_g1, scr_g2, scr_g3 } = req.body;
+        if (!(emp_type && scr_g1 && scr_g2 && scr_g3)) {
             return res.status(400).json({
                 RespCode: 400,
                 RespMessage: 'Invalid input data',
@@ -527,7 +548,7 @@ app.post('/api/score/level', auth, (req, res) => {
 
         connection.query(
             "insert into score_levels(emp_type,scr_g1,scr_g2,scr_g3) values(?,?,?,?)",
-            [emp_type,scr_g1,scr_g2,scr_g3],
+            [emp_type, scr_g1, scr_g2, scr_g3],
             (err, _results, _fields) => {
                 if (err) {
                     return res.status(500).json({
@@ -618,8 +639,8 @@ app.get('/api/get/score/types', auth, (_req, res) => {
 //create score type
 app.post('/api/score/type', auth, (req, res) => {
     try {
-        const { s_range,s_type } = req.body;
-        if (!(s_range&&s_type)) {
+        const { s_range, s_type } = req.body;
+        if (!(s_range && s_type)) {
             return res.status(400).json({
                 RespCode: 400,
                 RespMessage: 'Invalid input data',
@@ -629,7 +650,7 @@ app.post('/api/score/type', auth, (req, res) => {
 
         connection.query(
             "insert into score_types(s_range,s_type) values(?,?)",
-            [s_range,s_type],
+            [s_range, s_type],
             (err, _results, _fields) => {
                 if (err) {
                     return res.status(500).json({
