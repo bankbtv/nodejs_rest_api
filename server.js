@@ -906,6 +906,40 @@ app.put('/api/update/turn/status', auth, (req, res) => {
     }
 })
 
+//delete turn
+app.delete('/api/delete/turn',auth, (req,res) => {
+    try{
+        const id = req.query.id
+        if (!(id)) {
+            return res.status(400).json({
+                RespCode: 400,
+                RespMessage: 'Invalid input data',
+                log: 0
+            });
+        }
+        connection.query(
+            "delete from turns where turns_id = ?",
+            [id],
+            (err, results, _fields) => {
+                if (results) {
+                    return res.status(201).json({ message: "success." });
+                }
+                else {
+                    console.log(err);
+                    return res.status(500).send({message: "error: "+err});
+                }
+            }
+        )
+    }catch (err) {
+        console.log('Err:', err);
+        return res.status(500).json({
+            RespCode: 500,
+            RespMessage: 'Internal server error',
+            log: 0
+        });
+    }
+})
+
 
 //detail
 
