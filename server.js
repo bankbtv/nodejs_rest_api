@@ -772,10 +772,22 @@ app.post('/api/create/turn', auth, (req, res) => {
                     });
                 }
 
-                return res.status(200).json({
-                    RespCode: 200,
-                    RespMessage: 'success'
-                })
+                connection.query('select * from turns',
+                    (_err, data, _fil) => {
+                        if (err) {
+                            return res.status(200).json({
+                                RespCode: 500,
+                                RespMessage: 'Database query error',
+                                log: err
+                            });
+                        }
+                        return res.status(200).json({
+                            RespCode: 200,
+                            RespMessage: {log:'success',id:data.const()}
+                        })
+                    }
+                )
+                
             }
         )
     } catch (err) {
