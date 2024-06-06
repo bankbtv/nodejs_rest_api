@@ -120,7 +120,7 @@ app.post("/api/create/user", auth, (req, res) => {
                         (err, _results, _fields) => {
                             if (err) {
                                 console.log("error while inserting a user into the database", err)
-                                return res.status(400).json({ message: "error while inserting a user into the database", err })
+                                return res.status(200).json({ message: "error while inserting a user into the database", err })
                             }
                             return res.status(200).json({ message: "new user successfully created!" })
                         }
@@ -129,7 +129,7 @@ app.post("/api/create/user", auth, (req, res) => {
             )
         } catch (error) {
             console.log(err);
-            return res.status(400).send();
+            return res.status(200).send();
         }
     }
     else {
@@ -176,7 +176,7 @@ app.put("/api/update/user", auth, (req, res) => {
         }
     }
     else {
-        return res.status(400).json({
+        return res.status(200).json({
             RespCode: 400,
             RespMessage: `Invalid input data`,
             log: 0
@@ -208,7 +208,7 @@ app.put("/api/reset/user", auth, (req, res) => {
         }
     }
     else {
-        return res.status(400).json({
+        return res.status(200).json({
             RespCode: 400,
             RespMessage: `Invalid input data`,
             log: 0
@@ -233,7 +233,7 @@ app.get('/api/get/emps', auth, (_rep, res) => {
                 }
                 else {
                     console.log('Err : not found data.')
-                    return res.status(400).json({
+                    return res.status(200).json({
                         RespCode: 400,
                         RespMessage: 'bad: not found data.',
                         log: 1
@@ -243,7 +243,7 @@ app.get('/api/get/emps', auth, (_rep, res) => {
     }
     catch (err) {
         console.log("Err :", err)
-        return res.status(400).json({
+        return res.status(200).json({
             RespCode: 400,
             RespMessage: 'bad',
             log: 0
@@ -268,7 +268,7 @@ app.get('/api/get/emp', auth, (req, res) => {
                     }
                     else {
                         console.log('Err : not found data.')
-                        return res.status(400).json({
+                        return res.status(200).json({
                             RespCode: 400,
                             RespMessage: 'bad: not found data.',
                             log: 1
@@ -278,7 +278,7 @@ app.get('/api/get/emp', auth, (req, res) => {
         }
         catch (err) {
             console.log("Err :", err)
-            return res.status(400).json({
+            return res.status(200).json({
                 RespCode: 400,
                 RespMessage: 'bad',
                 log: 0
@@ -286,7 +286,7 @@ app.get('/api/get/emp', auth, (req, res) => {
         }
     }
     else {
-        return res.status(400).json({
+        return res.status(200).json({
             RespCode: 400,
             RespMessage: 'no id',
             log: 0
@@ -314,7 +314,7 @@ app.get('/api/get/indicators', auth, (_req, res) => {
                 }
                 else {
                     console.log('Err : not found data.')
-                    return res.status(400).json({
+                    return res.status(200).json({
                         RespCode: 400,
                         RespMessage: 'bad: not found data.',
                         log: 1
@@ -325,7 +325,7 @@ app.get('/api/get/indicators', auth, (_req, res) => {
     }
     catch (err) {
         console.log("Err :", err)
-        return res.status(400).json({
+        return res.status(200).json({
             RespCode: 400,
             RespMessage: 'bad',
             log: 0
@@ -338,7 +338,7 @@ app.post('/api/create/indicator', auth, (req, res) => {
     try {
         const { title, type_access, group_id } = req.body;
         if (!(title && type_access && group_id)) {
-            return res.status(400).json({
+            return res.status(200).json({
                 RespCode: 400,
                 RespMessage: 'Invalid input data',
                 log: 0
@@ -416,7 +416,7 @@ app.get('/api/get/groups', auth, (_req, res) => {
                 }
                 else {
                     console.log('Err : not found data.')
-                    return res.status(400).json({
+                    return res.status(200).json({
                         RespCode: 400,
                         RespMessage: 'bad: not found data.',
                         log: 1
@@ -427,7 +427,7 @@ app.get('/api/get/groups', auth, (_req, res) => {
     }
     catch (err) {
         console.log("Err :", err)
-        return res.status(400).json({
+        return res.status(200).json({
             RespCode: 400,
             RespMessage: 'bad',
             log: 0
@@ -440,7 +440,7 @@ app.post('/api/create/group', auth, (req, res) => {
     try {
         const { title } = req.body;
         if (!(title)) {
-            return res.status(400).json({
+            return res.status(200).json({
                 RespCode: 400,
                 RespMessage: 'Invalid input data',
                 log: 0
@@ -518,7 +518,7 @@ app.get('/api/get/score/levels', auth, (_req, res) => {
                 }
                 else {
                     console.log('Err : not found data.')
-                    return res.status(400).json({
+                    return res.status(200).json({
                         RespCode: 400,
                         RespMessage: 'bad: not found data.',
                         log: 1
@@ -529,7 +529,7 @@ app.get('/api/get/score/levels', auth, (_req, res) => {
     }
     catch (err) {
         console.log("Err :", err)
-        return res.status(400).json({
+        return res.status(200).json({
             RespCode: 400,
             RespMessage: 'bad',
             log: 0
@@ -542,7 +542,7 @@ app.post('/api/score/level', auth, (req, res) => {
     try {
         const { emp_type, scr_g1, scr_g2, scr_g3 } = req.body;
         if (!(emp_type && scr_g1 && scr_g2 && scr_g3)) {
-            return res.status(400).json({
+            return res.status(200).json({
                 RespCode: 400,
                 RespMessage: 'Invalid input data',
                 log: 0
@@ -620,7 +620,7 @@ app.get('/api/get/score/types', auth, (_req, res) => {
                 }
                 else {
                     console.log('Err : not found data.')
-                    return res.status(400).json({
+                    return res.status(200).json({
                         RespCode: 400,
                         RespMessage: 'bad: not found data.',
                         log: 1
@@ -631,7 +631,7 @@ app.get('/api/get/score/types', auth, (_req, res) => {
     }
     catch (err) {
         console.log("Err :", err)
-        return res.status(400).json({
+        return res.status(200).json({
             RespCode: 400,
             RespMessage: 'bad',
             log: 0
@@ -644,7 +644,7 @@ app.post('/api/score/type', auth, (req, res) => {
     try {
         const { s_range, s_type } = req.body;
         if (!(s_range && s_type)) {
-            return res.status(400).json({
+            return res.status(200).json({
                 RespCode: 400,
                 RespMessage: 'Invalid input data',
                 log: 0
@@ -714,6 +714,11 @@ app.get('/api/get/turns', auth, (_req, res) => {
         connection.query('select * from turns', [],
             (_err, data, _fil) => {
                 if (data && data[0]) {
+                    data.forEach(element =>{
+                        element.idt_ids = element.idt_ids.split(",");
+                        element.st_id = element.st_id.split(",");
+                        element.sl_id = element.sl_id.split(",");
+                    })
                     return res.status(200).json({
                         RespCode: 200,
                         RespMessage: 'success',
@@ -722,7 +727,7 @@ app.get('/api/get/turns', auth, (_req, res) => {
                 }
                 else {
                     console.log('Err : not found data.')
-                    return res.status(400).json({
+                    return res.status(200).json({
                         RespCode: 400,
                         RespMessage: 'bad: not found data.',
                         log: 1
@@ -745,7 +750,7 @@ app.post('/api/create/turn', auth, (req, res) => {
     try {
         const { title, idt_ids, st_id, sl_id } = req.body;
         if (!(title && idt_ids && st_id && sl_id)) {
-            return res.status(400).json({
+            return res.status(200).json({
                 RespCode: 400,
                 RespMessage: 'Invalid input data',
                 log: 0
@@ -788,7 +793,7 @@ app.put('/api/update/turn', auth, (req, res) => {
     try {
         const { turn_id, title, idt_ids, st_id, sl_id } = req.body;
         if (!(turn_id && title && idt_ids && st_id && sl_id)) {
-            return res.status(400).json({
+            return res.status(200).json({
                 RespCode: 400,
                 RespMessage: 'Invalid input data',
                 log: 0
@@ -827,7 +832,7 @@ app.put('/api/update/turn', auth, (req, res) => {
                 }
                 else {
                     console.log('Err : not found data.')
-                    return res.status(400).json({
+                    return res.status(200).json({
                         RespCode: 400,
                         RespMessage: 'bad: not found data.',
                         log: 1
@@ -851,7 +856,7 @@ app.put('/api/update/turn/status', auth, (req, res) => {
     try {
         const { status } = req.body;
         if (!(turn_id && status)) {
-            return res.status(400).json({
+            return res.status(200).json({
                 RespCode: 400,
                 RespMessage: 'Invalid input data',
                 log: 0
@@ -887,7 +892,7 @@ app.put('/api/update/turn/status', auth, (req, res) => {
                 }
                 else {
                     console.log('Err : not found data.')
-                    return res.status(400).json({
+                    return res.status(200).json({
                         RespCode: 400,
                         RespMessage: 'bad: not found data.',
                         log: 1
@@ -911,7 +916,7 @@ app.delete('/api/delete/turn',auth, (req,res) => {
     try{
         const id = req.query.id
         if (!(id)) {
-            return res.status(400).json({
+            return res.status(200).json({
                 RespCode: 400,
                 RespMessage: 'Invalid input data',
                 log: 0
@@ -957,7 +962,7 @@ app.get('/api/get/details', auth, (_req, res) => {
                 }
                 else {
                     console.log('Err : not found data.')
-                    return res.status(400).json({
+                    return res.status(200).json({
                         RespCode: 400,
                         RespMessage: 'bad: not found data.',
                         log: 1
@@ -975,12 +980,12 @@ app.get('/api/get/details', auth, (_req, res) => {
     }
 })
 
-//get details by emp_id
+//get all details by emp_id
 app.get('/api/get/details/emp', auth, (req, res) => {
     try {
         const id = req.query.id
         if (!(id)) {
-            return res.status(400).json({
+            return res.status(200).json({
                 RespCode: 400,
                 RespMessage: 'Invalid input data',
                 log: 0
@@ -997,7 +1002,7 @@ app.get('/api/get/details/emp', auth, (req, res) => {
                 }
                 else {
                     console.log('Err : not found data.')
-                    return res.status(400).json({
+                    return res.status(200).json({
                         RespCode: 400,
                         RespMessage: 'bad: not found data.',
                         log: 1
@@ -1020,7 +1025,7 @@ app.get('/api/get/details/turn', auth, (req, res) => {
     try {
         const id = req.query.id
         if (!(id)) {
-            return res.status(400).json({
+            return res.status(200).json({
                 RespCode: 400,
                 RespMessage: 'Invalid input data',
                 log: 0
@@ -1037,7 +1042,7 @@ app.get('/api/get/details/turn', auth, (req, res) => {
                 }
                 else {
                     console.log('Err : not found data.')
-                    return res.status(400).json({
+                    return res.status(200).json({
                         RespCode: 400,
                         RespMessage: 'bad: not found data.',
                         log: 1
@@ -1060,7 +1065,7 @@ app.post('/api/create/detail', auth, (req, res) => {
     try {
         const { emp_id, turn_id } = req.body;
         if (!(emp_id && turn_id)) {
-            return res.status(400).json({
+            return res.status(200).json({
                 RespCode: 400,
                 RespMessage: 'Invalid input data',
                 log: 0
@@ -1112,7 +1117,7 @@ app.post('/api/create/details', auth, (req, res) => {
     try {
         const { emp_id, turn_id } = req.body;
         if (!(emp_id && turn_id)) {
-            return res.status(400).json({
+            return res.status(200).json({
                 RespCode: 400,
                 RespMessage: 'Invalid input data',
                 log: 0
@@ -1155,7 +1160,7 @@ app.delete('/api/delete/detail',auth, (req,res) => {
     try{
         const id = req.query.id
         if (!(id)) {
-            return res.status(400).json({
+            return res.status(200).json({
                 RespCode: 400,
                 RespMessage: 'Invalid input data',
                 log: 0
@@ -1192,7 +1197,7 @@ app.post('/api/login', (req, res) => {
     try {
         const { user_email, user_password } = req.body;
         if (!(user_email && user_password)) {
-            return res.status(400).json({
+            return res.status(200).json({
                 RespCode: 400,
                 RespMessage: 'Invalid input data',
                 log: 0
