@@ -304,7 +304,7 @@ app.get('/api/get/indicators', auth, (_req, res) => {
             (_err, data, _fil) => {
                 if (data && data[0]) {
                     data.forEach(element => {
-                        element.type_access=element.type_access.split(",");
+                        element.type_access = element.type_access.split(",");
                     });
                     return res.status(200).json({
                         RespCode: 200,
@@ -696,6 +696,451 @@ app.post('/api/score/type', auth, (req, res) => {
         )
 
     } catch (err) {
+        console.log('Err:', err);
+        return res.status(500).json({
+            RespCode: 500,
+            RespMessage: 'Internal server error',
+            log: 0
+        });
+    }
+})
+
+
+//turn
+
+//get all turns
+app.get('/api/get/turns', auth, (_req, res) => {
+    try {
+        connection.query('select * from turns', [],
+            (_err, data, _fil) => {
+                if (data && data[0]) {
+                    return res.status(200).json({
+                        RespCode: 200,
+                        RespMessage: 'success',
+                        log: data
+                    })
+                }
+                else {
+                    console.log('Err : not found data.')
+                    return res.status(400).json({
+                        RespCode: 400,
+                        RespMessage: 'bad: not found data.',
+                        log: 1
+                    })
+                }
+            }
+        )
+    } catch (err) {
+        console.log('Err:', err);
+        return res.status(500).json({
+            RespCode: 500,
+            RespMessage: 'Internal server error',
+            log: 0
+        });
+    }
+})
+
+//create turn
+app.post('/api/create/turn', auth, (req, res) => {
+    try {
+        const { title, idt_ids, st_id, sl_id } = req.body;
+        if (!(title && idt_ids && st_id && sl_id)) {
+            return res.status(400).json({
+                RespCode: 400,
+                RespMessage: 'Invalid input data',
+                log: 0
+            });
+        }
+        var s_idt_ids = idt_ids.toString();
+        var s_st_id = st_id.toString();
+        var s_sl_id = sl_id.toString();
+
+        connection.query(
+            "insert into turns(title, idt_ids, st_id, sl_id) values(?,?,?,?)",
+            [title, s_idt_ids, s_st_id, s_sl_id],
+            (err, _results, _fields) => {
+                if (err) {
+                    return res.status(500).json({
+                        RespCode: 500,
+                        RespMessage: 'Database query error',
+                        log: err
+                    });
+                }
+
+                return res.status(200).json({
+                    RespCode: 200,
+                    RespMessage: 'success'
+                })
+            }
+        )
+    } catch (err) {
+        console.log('Err:', err);
+        return res.status(500).json({
+            RespCode: 500,
+            RespMessage: 'Internal server error',
+            log: 0
+        });
+    }
+})
+
+//update turn
+app.put('/api/update/turn', auth, (req, res) => {
+    try {
+        const { turn_id, title, idt_ids, st_id, sl_id } = req.body;
+        if (!(turn_id && title && idt_ids && st_id && sl_id)) {
+            return res.status(400).json({
+                RespCode: 400,
+                RespMessage: 'Invalid input data',
+                log: 0
+            });
+        }
+        var s_idt_ids = idt_ids.toString();
+        var s_st_id = st_id.toString();
+        var s_sl_id = sl_id.toString();
+
+        connection.query(
+            "selete * from turns where turn_id = ?",
+            [turn_id],
+            (err, results, _fields) => {
+                if (err) {
+                    return res.status(500).json({
+                        RespCode: 500,
+                        RespMessage: 'Database query error',
+                        log: err
+                    });
+                }
+
+                if (results && results[0]) {
+                    connection.query(
+                        "update turns set title = ?,idt_ids = ?, st_id = ?, sl_id = ? where turn_id = ?",
+                        [title, s_idt_ids, s_st_id, s_sl_id, turn_id],
+                        (err, results, _fields) => {
+                            if (results) {
+                                return res.status(201).json({ message: "success." });
+                            }
+                            else {
+                                console.log(err);
+                                return res.status(500).send();
+                            }
+                        }
+                    )
+                }
+                else {
+                    console.log('Err : not found data.')
+                    return res.status(400).json({
+                        RespCode: 400,
+                        RespMessage: 'bad: not found data.',
+                        log: 1
+                    })
+                }
+            }
+        )
+
+    } catch (err) {
+        console.log('Err:', err);
+        return res.status(500).json({
+            RespCode: 500,
+            RespMessage: 'Internal server error',
+            log: 0
+        });
+    }
+})
+
+//update turn status
+app.put('/api/update/turn/status', auth, (req, res) => {
+    try {
+        const { status } = req.body;
+        if (!(turn_id && status)) {
+            return res.status(400).json({
+                RespCode: 400,
+                RespMessage: 'Invalid input data',
+                log: 0
+            });
+        }
+
+        connection.query(
+            "selete * from turns where turn_id = ?",
+            [turn_id],
+            (err, results, _fields) => {
+                if (err) {
+                    return res.status(500).json({
+                        RespCode: 500,
+                        RespMessage: 'Database query error',
+                        log: err
+                    });
+                }
+
+                if (results && results[0]) {
+                    connection.query(
+                        "update turns set status = ? where turn_id = ?",
+                        [status, turn_id],
+                        (err, results, _fields) => {
+                            if (results) {
+                                return res.status(201).json({ message: "success." });
+                            }
+                            else {
+                                console.log(err);
+                                return res.status(500).send();
+                            }
+                        }
+                    )
+                }
+                else {
+                    console.log('Err : not found data.')
+                    return res.status(400).json({
+                        RespCode: 400,
+                        RespMessage: 'bad: not found data.',
+                        log: 1
+                    })
+                }
+            }
+        )
+
+    } catch (err) {
+        console.log('Err:', err);
+        return res.status(500).json({
+            RespCode: 500,
+            RespMessage: 'Internal server error',
+            log: 0
+        });
+    }
+})
+
+
+//detail
+
+//get all details
+app.get('/api/get/details', auth, (_req, res) => {
+    try {
+        connection.query('select * from details', [],
+            (_err, data, _fil) => {
+                if (data && data[0]) {
+                    return res.status(200).json({
+                        RespCode: 200,
+                        RespMessage: 'success',
+                        log: data
+                    })
+                }
+                else {
+                    console.log('Err : not found data.')
+                    return res.status(400).json({
+                        RespCode: 400,
+                        RespMessage: 'bad: not found data.',
+                        log: 1
+                    })
+                }
+            }
+        )
+    } catch (err) {
+        console.log('Err:', err);
+        return res.status(500).json({
+            RespCode: 500,
+            RespMessage: 'Internal server error',
+            log: 0
+        });
+    }
+})
+
+//get details by emp_id
+app.get('/api/get/details/emp', auth, (req, res) => {
+    try {
+        const id = req.query.id
+        if (!(id)) {
+            return res.status(400).json({
+                RespCode: 400,
+                RespMessage: 'Invalid input data',
+                log: 0
+            });
+        }
+        connection.query('select * from details where emp_id = ?', [id],
+            (_err, data, _fil) => {
+                if (data && data[0]) {
+                    return res.status(200).json({
+                        RespCode: 200,
+                        RespMessage: 'success',
+                        log: data
+                    })
+                }
+                else {
+                    console.log('Err : not found data.')
+                    return res.status(400).json({
+                        RespCode: 400,
+                        RespMessage: 'bad: not found data.',
+                        log: 1
+                    })
+                }
+            }
+        )
+    } catch (err) {
+        console.log('Err:', err);
+        return res.status(500).json({
+            RespCode: 500,
+            RespMessage: 'Internal server error',
+            log: 0
+        });
+    }
+})
+
+//get all details by turn_id
+app.get('/api/get/details/turn', auth, (req, res) => {
+    try {
+        const id = req.query.id
+        if (!(id)) {
+            return res.status(400).json({
+                RespCode: 400,
+                RespMessage: 'Invalid input data',
+                log: 0
+            });
+        }
+        connection.query('select * from details where turn_id = ?', [id],
+            (_err, data, _fil) => {
+                if (data && data[0]) {
+                    return res.status(200).json({
+                        RespCode: 200,
+                        RespMessage: 'success',
+                        log: data
+                    })
+                }
+                else {
+                    console.log('Err : not found data.')
+                    return res.status(400).json({
+                        RespCode: 400,
+                        RespMessage: 'bad: not found data.',
+                        log: 1
+                    })
+                }
+            }
+        )
+    } catch (err) {
+        console.log('Err:', err);
+        return res.status(500).json({
+            RespCode: 500,
+            RespMessage: 'Internal server error',
+            log: 0
+        });
+    }
+})
+
+//creatr datail
+app.post('/api/create/detail', auth, (req, res) => {
+    try {
+        const { emp_id, turn_id } = req.body;
+        if (!(emp_id && turn_id)) {
+            return res.status(400).json({
+                RespCode: 400,
+                RespMessage: 'Invalid input data',
+                log: 0
+            });
+        }
+        connection.query(
+            "selete * from details where emp_id = ? and turn_id = ?",
+            [emp_id, turn_id],
+            (err, results, _fields) => {
+                if (err) {
+                    return res.status(500).json({
+                        RespCode: 500,
+                        RespMessage: 'Database query error',
+                        log: err
+                    });
+                }
+                if (results && results[0]) {
+                    console.log("detail exit")
+                    return res.status(300).json({ message: "detail exit" })
+                }
+
+                connection.query(
+                    "insert into details(emp_id,turn_id) values(?,?)",
+                    [emp_id, turn_id],
+                    (err, results, _fields) => {
+                        if (results) {
+                            return res.status(201).json({ message: "success." });
+                        }
+                        else {
+                            console.log(err);
+                            return res.status(500).send();
+                        }
+                    }
+                )
+            }
+        )
+    } catch (err) {
+        console.log('Err:', err);
+        return res.status(500).json({
+            RespCode: 500,
+            RespMessage: 'Internal server error',
+            log: 0
+        });
+    }
+})
+
+//creatr datails
+app.post('/api/create/details', auth, (req, res) => {
+    try {
+        const { emp_id, turn_id } = req.body;
+        if (!(emp_id && turn_id)) {
+            return res.status(400).json({
+                RespCode: 400,
+                RespMessage: 'Invalid input data',
+                log: 0
+            });
+        }
+
+        let query = 'INSERT INTO details(emp_id, turn_id) VALUES ';
+        emp_id.forEach((id, index) => {
+            query += `(${id}, ${turn_id})`;
+            if (index < emp_id.length - 1) {
+                query += ', ';
+            }
+        });
+
+        connection.query(
+            query,
+            (err, results, _fields) => {
+                if (results) {
+                    return res.status(201).json({ message: "success." });
+                }
+                else {
+                    console.log(err);
+                    return res.status(500).send();
+                }
+            }
+        )
+
+    } catch (err) {
+        console.log('Err:', err);
+        return res.status(500).json({
+            RespCode: 500,
+            RespMessage: 'Internal server error',
+            log: 0
+        });
+    }
+})
+
+//delete datail
+app.delete('/api/delete/detail',auth, (req,res) => {
+    try{
+        const id = req.query.id
+        if (!(id)) {
+            return res.status(400).json({
+                RespCode: 400,
+                RespMessage: 'Invalid input data',
+                log: 0
+            });
+        }
+        connection.query(
+            "delete from details where detail_id = ?",
+            [id],
+            (err, results, _fields) => {
+                if (results) {
+                    return res.status(201).json({ message: "success." });
+                }
+                else {
+                    console.log(err);
+                    return res.status(500).send({message: "error: "+err});
+                }
+            }
+        )
+    }catch (err) {
         console.log('Err:', err);
         return res.status(500).json({
             RespCode: 500,
