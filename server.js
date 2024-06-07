@@ -367,7 +367,7 @@ app.post('/api/create/indicator', auth, (req, res) => {
                             });
                         }
 
-                        connection.query('select * from indicators where idt_id = ?', [data.count()],
+                        connection.query('select * from indicators where idt_id = ?', [data.length],
                             (_err, data, _fil) => {
                                 if (err) {
                                     return res.status(500).json({
@@ -469,7 +469,7 @@ app.post('/api/create/group', auth, (req, res) => {
                             });
                         }
 
-                        connection.query('select * from groups where group_id = ?', [data.count()],
+                        connection.query('select * from groups where group_id = ?', [data.length],
                             (_err, data, _fil) => {
                                 if (err) {
                                     return res.status(500).json({
@@ -571,7 +571,7 @@ app.post('/api/score/level', auth, (req, res) => {
                             });
                         }
 
-                        connection.query('select * from score_levels where sl_id = ?', [data.count()],
+                        connection.query('select * from score_levels where sl_id = ?', [data.length],
                             (_err, data, _fil) => {
                                 if (err) {
                                     return res.status(500).json({
@@ -673,7 +673,7 @@ app.post('/api/score/type', auth, (req, res) => {
                             });
                         }
 
-                        connection.query('select * from score_types where st_id = ?', [data.count()],
+                        connection.query('select * from score_types where st_id = ?', [data.length],
                             (_err, data, _fil) => {
                                 if (err) {
                                     return res.status(500).json({
@@ -783,7 +783,7 @@ app.post('/api/create/turn', auth, (req, res) => {
                         }
                         return res.status(200).json({
                             RespCode: 200,
-                            RespMessage: {log:'success',id:data.count()}
+                            RespMessage: {log:'success',id:data.length}
                         })
                     }
                 )
