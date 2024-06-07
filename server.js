@@ -19,7 +19,7 @@ connection.connect((err) => {
         console.log('error to connect to MySQL database: ', err)
         return;
     }
-    console.log('MySQL successsfully connected!');
+    console.log('MySQL successfully connected!');
 })
 
 app.use(express.json());
@@ -1257,7 +1257,7 @@ app.post('/api/login', (req, res) => {
                                     )
                                     return res.status(200).json({
                                         RespCode: 200,
-                                        RespMessage: 'Success',
+                                        RespMessage: 'success',
                                         log: {
                                             token: token,
                                             access: user.access,
