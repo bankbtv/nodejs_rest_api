@@ -159,7 +159,7 @@ app.put("/api/update/user", auth, (req, res) => {
                         [user_email, user_password, access, emp_id, user_id],
                         (err, results, _fields) => {
                             if (results) {
-                                return res.status(201).json({ message: "success." });
+                                return res.status(201).json({ message: "success" });
                             }
                             else {
                                 console.log(err);
@@ -194,7 +194,7 @@ app.put("/api/reset/user", auth, (req, res) => {
                 [1234, user_id],
                 (err, results, _fields) => {
                     if (results) {
-                        return res.status(201).json({ message: "success." });
+                        return res.status(201).json({ message: "success" });
                     }
                     else {
                         console.log(err);
@@ -833,7 +833,7 @@ app.put('/api/update/turn', auth, (req, res) => {
                         [title, s_idt_ids, s_st_id, s_sl_id, turn_id],
                         (err, results, _fields) => {
                             if (results) {
-                                return res.status(201).json({ message: "success." });
+                                return res.status(201).json({ message: "success" });
                             }
                             else {
                                 console.log(err);
@@ -893,7 +893,7 @@ app.put('/api/update/turn/status', auth, (req, res) => {
                         [status, turn_id],
                         (err, results, _fields) => {
                             if (results) {
-                                return res.status(201).json({ message: "success." });
+                                return res.status(201).json({ message: "success" });
                             }
                             else {
                                 console.log(err);
@@ -939,7 +939,7 @@ app.delete('/api/delete/turn',auth, (req,res) => {
             [id],
             (err, results, _fields) => {
                 if (results) {
-                    return res.status(201).json({ message: "success." });
+                    return res.status(201).json({ message: "success" });
                 }
                 else {
                     console.log(err);
@@ -1104,7 +1104,7 @@ app.post('/api/create/detail', auth, (req, res) => {
                     [emp_id, turn_id],
                     (err, results, _fields) => {
                         if (results) {
-                            return res.status(201).json({ message: "success." });
+                            return res.status(201).json({ message: "success" });
                         }
                         else {
                             console.log(err);
@@ -1148,7 +1148,7 @@ app.post('/api/create/details', auth, (req, res) => {
             query,
             (err, results, _fields) => {
                 if (results) {
-                    return res.status(201).json({ message: "success." });
+                    return res.status(201).json({ message: "success" });
                 }
                 else {
                     console.log(err);
@@ -1183,7 +1183,7 @@ app.delete('/api/delete/detail',auth, (req,res) => {
             [id],
             (err, results, _fields) => {
                 if (results) {
-                    return res.status(201).json({ message: "success." });
+                    return res.status(201).json({ message: "success" });
                 }
                 else {
                     console.log(err);
