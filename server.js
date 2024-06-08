@@ -711,7 +711,7 @@ app.post('/api/score/type', auth, (req, res) => {
 //get all turns
 app.get('/api/get/turns', auth, (_req, res) => {
     try {
-        connection.query('select * from turns', [],
+        connection.query('select * from turns order by status desc', [],
             (_err, data, _fil) => {
                 if (data && data[0]) {
                     data.forEach(element =>{
