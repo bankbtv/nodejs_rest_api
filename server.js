@@ -936,7 +936,7 @@ app.delete('/api/delete/turn', auth, (req, res) => {
         }
         connection.query(
             "select * from turns where turn_id = ?",
-            [turn_id],
+            [id],
             (err, results, _fields) => {
                 if (err) {
                     return res.status(500).json({
