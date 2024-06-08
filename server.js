@@ -866,7 +866,7 @@ app.put('/api/update/turn', auth, (req, res) => {
 //update turn status
 app.put('/api/update/turn/status', auth, (req, res) => {
     try {
-        const { status } = req.body;
+        const { turn_id,status } = req.body;
         if (!(turn_id && status)) {
             return res.status(200).json({
                 RespCode: 400,
