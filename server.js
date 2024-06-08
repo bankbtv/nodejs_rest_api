@@ -935,7 +935,7 @@ app.delete('/api/delete/turn',auth, (req,res) => {
             });
         }
         connection.query(
-            "delete from turns where turns_id = ?",
+            "delete from turns where turn_id = ?",
             [id],
             (err, results, _fields) => {
                 if (results) {
