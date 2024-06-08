@@ -714,7 +714,7 @@ app.get('/api/get/turns', auth, (_req, res) => {
         connection.query('select * from turns order by status desc', [],
             (_err, data, _fil) => {
                 if (data && data[0]) {
-                    data.forEach(element =>{
+                    data.forEach(element => {
                         element.idt_ids = element.idt_ids.split(",");
                         element.st_id = element.st_id.split(",");
                         element.sl_id = element.sl_id.split(",");
@@ -783,11 +783,11 @@ app.post('/api/create/turn', auth, (req, res) => {
                         }
                         return res.status(200).json({
                             RespCode: 200,
-                            RespMessage: {log:'success',id:data.length}
+                            RespMessage: { log: 'success', id: data.length }
                         })
                     }
                 )
-                
+
             }
         )
     } catch (err) {
@@ -866,7 +866,7 @@ app.put('/api/update/turn', auth, (req, res) => {
 //update turn status
 app.put('/api/update/turn/status', auth, (req, res) => {
     try {
-        const { turn_id,status } = req.body;
+        const { turn_id, status } = req.body;
         if (!(turn_id && status)) {
             return res.status(200).json({
                 RespCode: 400,
@@ -924,8 +924,8 @@ app.put('/api/update/turn/status', auth, (req, res) => {
 })
 
 //delete turn
-app.delete('/api/delete/turn',auth, (req,res) => {
-    try{
+app.delete('/api/delete/turn', auth, (req, res) => {
+    try {
         const id = req.query.id
         if (!(id)) {
             return res.status(200).json({
@@ -935,19 +935,55 @@ app.delete('/api/delete/turn',auth, (req,res) => {
             });
         }
         connection.query(
-            "delete from turns where turn_id = ?",
-            [id],
+            "select * from turns where turn_id = ?",
+            [turn_id],
             (err, results, _fields) => {
-                if (results) {
-                    return res.status(201).json({ message: "success" });
+                if (err) {
+                    return res.status(500).json({
+                        RespCode: 500,
+                        RespMessage: 'Database query error',
+                        log: err
+                    });
+                }
+
+                if (results && results[0]) {
+                    connection.query(
+                        "delete from details where turn_id = ?",
+                        [id],
+                        (err, results, _fields) => {
+                            if (results) {
+                                connection.query(
+                                    "delete from turns where turn_id = ?",
+                                    [id],
+                                    (err, results, _fields) => {
+                                        if (results) {
+                                            return res.status(201).json({ message: "success" });
+                                        }
+                                        else {
+                                            console.log(err);
+                                            return res.status(500).send({ message: "error: " + err });
+                                        }
+                                    }
+                                )
+                            }
+                            else {
+                                console.log(err);
+                                return res.status(500).send({ message: "error: " + err });
+                            }
+                        }
+                    )
                 }
                 else {
-                    console.log(err);
-                    return res.status(500).send({message: "error: "+err});
+                    console.log('Err : not found data.')
+                    return res.status(200).json({
+                        RespCode: 400,
+                        RespMessage: 'bad: not found data.',
+                        log: 1
+                    })
                 }
             }
         )
-    }catch (err) {
+    } catch (err) {
         console.log('Err:', err);
         return res.status(500).json({
             RespCode: 500,
@@ -1168,8 +1204,8 @@ app.post('/api/create/details', auth, (req, res) => {
 })
 
 //delete datail
-app.delete('/api/delete/detail',auth, (req,res) => {
-    try{
+app.delete('/api/delete/detail', auth, (req, res) => {
+    try {
         const id = req.query.id
         if (!(id)) {
             return res.status(200).json({
@@ -1187,11 +1223,11 @@ app.delete('/api/delete/detail',auth, (req,res) => {
                 }
                 else {
                     console.log(err);
-                    return res.status(500).send({message: "error: "+err});
+                    return res.status(500).send({ message: "error: " + err });
                 }
             }
         )
-    }catch (err) {
+    } catch (err) {
         console.log('Err:', err);
         return res.status(500).json({
             RespCode: 500,
