@@ -816,7 +816,7 @@ app.put('/api/update/turn', auth, (req, res) => {
         var s_sl_id = sl_id.toString();
 
         connection.query(
-            "selete * from turns where turn_id = ?",
+            "select * from turns where turn_id = ?",
             [turn_id],
             (err, results, _fields) => {
                 if (err) {
