@@ -512,6 +512,43 @@ app.get('/api/get/turns', auth, (_req, res) => {
     }
 })
 
+//get all turns by emp_id
+app.get('/api/get/turns/user', auth, (req, res) => {
+    try {
+        const id = req.query.id
+        if (!(id))
+            res_invalid_input(res);
+
+        connection.query('select * from details where emp_id = ?', [id],
+            (err, data, _fil) => {
+                if (err)
+                    res_base_error(res, err);
+                const ids = [];
+                if (!(data && data[0]))
+                    res_sccess_data(res, ids);
+                let completedQueries = 0;
+                data.forEach((detail) => {
+                    connection.query('select * from turns where turn_id = ?', [detail.turn_id],
+                        (err, data, _fil) => {
+                            if (err)
+                                res_base_error(res, err);
+                            if (data&&data[0]&&data[0].status == 1)
+                                ids.push(data[0].turn_id)
+                            completedQueries++;
+                            if (completedQueries === data.length) {
+                                 res_sccess_data(res, ids);
+                            }
+                        }
+                    )
+                })
+            }
+        )
+    }
+    catch (err) {
+        catch_error(err);
+    }
+})
+
 //create turn
 app.post('/api/create/turn', auth, (req, res) => {
     try {
