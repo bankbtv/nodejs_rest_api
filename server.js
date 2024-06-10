@@ -538,9 +538,8 @@ app.get('/api/get/turns/user', auth, (req, res) => {
                         }
                     )
                 })
-                if (completedQueries === data.length) {
-                    return res_sccess_data(res, ids);
-               }
+                
+                return res_sccess_data(res, ids);
             }
         )
     }
