@@ -526,19 +526,17 @@ app.get('/api/get/turns/user', auth, (req, res) => {
                 const ids = [];
                 if (!(data && data[0]))
                     return res_sccess_data(res, ids);
-                let completedQueries = 0;
                 data.forEach((detail) => {
                     connection.query('select * from turns where turn_id = ?', [detail.turn_id],
                         (err, data, _fil) => {
                             if (err)
                                 return res_base_error(res, err);
-                            if (data&&data[0]&&data[0].status == 1)
+                            if (data && data[0] && data[0].status == 1)
                                 ids.push(data[0])
-                            completedQueries++;
                         }
                     )
                 })
-                
+
                 return res_sccess_data(res, ids);
             }
         )
