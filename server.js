@@ -607,10 +607,11 @@ app.put('/api/update/turn', auth, (req, res) => {
                 connection.query(
                     "update turns set title = ?,idt_ids = ?, st_id = ?, sl_id = ? where turn_id = ?",
                     [title, s_idt_ids, s_st_id, s_sl_id, turn_id],
-                    (err, _errdata, _fields) => {
+                    (err, data, _fields) => {
                         if (err)
                             res_base_error(res, err);
-                        res_sccess(res);
+                        if(data)
+                            res_sccess(res);
                     }
                 )
 
