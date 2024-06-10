@@ -529,11 +529,11 @@ app.get('/api/get/turns/user', auth, (req, res) => {
                 let completedQueries = 0;
                 data.forEach((detail) => {
                     connection.query('select * from turns where turn_id = ?', [detail.turn_id],
-                        (err, turnData , _fil) => {
+                        (err, turnData, _fil) => {
                             if (err)
                                 return res_base_error(res, err);
-                            if (turnData  && turnData [0] && turnData [0].status == 1)
-                                ids.push(turnData [0])
+                            if (turnData && turnData[0] && turnData[0].status == 1)
+                                ids.push(turnData[0])
                             completedQueries++;
                             if (completedQueries === data.length) {
                                 return res_sccess_data(res, ids);
@@ -750,19 +750,20 @@ app.get('/api/get/details/turn', auth, (req, res) => {
                 if (!(data && data[0]))
                     return res_notfund(res);
                 let completedQueries = 0;
-                data.forEach((detail)=>{
+                data.forEach((detail) => {
                     connection.query('select * from employees where emp_id = ?;',
                         [detail.emp_id],
                         (err, empData, _fil) => {
                             if (err)
                                 return res_base_error(res, err);
                             if (empData && empData[0])
-                                detail.emp_id=empData[0];
+                                detail.emp_id = empData[0];
                             completedQueries++;
                             if (completedQueries === data.length) {
                                 return res_sccess_data(res, data);
                             }
-                        })
+                        }
+                    )
                 })
             }
         )
@@ -809,22 +810,28 @@ app.post('/api/create/details', auth, (req, res) => {
         if (!(emp_id && turn_id))
             return res_invalid_input(res);
 
+        
+        let completedQueries = 0;
         let query = 'INSERT INTO details(emp_id, turn_id) VALUES ';
         emp_id.forEach((id, index) => {
             query += `(${id}, ${turn_id})`;
             if (index < emp_id.length - 1) {
                 query += ', ';
             }
+            completedQueries ++
         });
 
-        connection.query(
-            query,
-            (err, _results, _fields) => {
-                if (err)
-                    return res_base_error(res, err);
-                return res_sccess(res);
-            }
-        )
+        if (completedQueries === emp_id.length) {
+            connection.query(
+                query,
+                (err, _results, _fields) => {
+                    if (err)
+                        return res_base_error(res, err);
+                    return res_sccess(res);
+                }
+            )
+        }
+        
 
     } catch (err) {
         return catch_error(err);
