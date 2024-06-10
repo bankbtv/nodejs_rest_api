@@ -749,7 +749,21 @@ app.get('/api/get/details/turn', auth, (req, res) => {
                     return res_base_error(res, err);
                 if (!(data && data[0]))
                     return res_notfund(res);
-                return res_sccess_data(res, data);
+                let completedQueries = 0;
+                data.forEach((detail)=>{
+                    connection.query('select * from employees where emp_id = ?;',
+                        [detail.emp_id],
+                        (err, empData, _fil) => {
+                            if (err)
+                                return res_base_error(res, err);
+                            if (empData && empData[0])
+                                detail.emp_id=empData[0];
+                            completedQueries++;
+                            if (completedQueries === data.length) {
+                                return res_sccess_data(res, data);
+                            }
+                        })
+                })
             }
         )
     } catch (err) {
