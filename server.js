@@ -533,7 +533,7 @@ app.get('/api/get/turns/user', auth, (req, res) => {
                             if (err)
                                 res_base_error(res, err);
                             if (data&&data[0]&&data[0].status == 1)
-                                ids.push(data[0].turn_id)
+                                ids.push(data[0])
                             completedQueries++;
                             if (completedQueries === data.length) {
                                  res_sccess_data(res, ids);
