@@ -535,12 +535,12 @@ app.get('/api/get/turns/user', auth, (req, res) => {
                             if (data&&data[0]&&data[0].status == 1)
                                 ids.push(data[0])
                             completedQueries++;
-                            if (completedQueries === data.length) {
-                                 return res_sccess_data(res, ids);
-                            }
                         }
                     )
                 })
+                if (completedQueries === data.length) {
+                    return res_sccess_data(res, ids);
+               }
             }
         )
     }
