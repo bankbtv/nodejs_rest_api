@@ -807,36 +807,65 @@ app.post('/api/create/detail', auth, (req, res) => {
 app.post('/api/create/details', auth, (req, res) => {
     try {
         const { emp_id, turn_id } = req.body;
-        if (!(emp_id && turn_id))
-            return res_invalid_input(res);
 
-        
-        let completedQueries = 0;
-        let query = 'INSERT INTO details(emp_id, turn_id) VALUES ';
+        if (!(emp_id && turn_id)) {
+            return res_invalid_input(res);
+        }
+
+        if (!Array.isArray(emp_id)) {
+            return res_invalid_input(res);
+        }
+
+        let checkQuery = 'SELECT emp_id, turn_id FROM details WHERE (emp_id, turn_id) IN (';
+        let checkValues = [];
+        let insertQuery = 'INSERT INTO details(emp_id, turn_id) VALUES ';
+        let insertValues = [];
+
         emp_id.forEach((id, index) => {
-            query += `(${id}, ${turn_id})`;
+            checkQuery += '(?, ?)';
+            checkValues.push(id, turn_id);
             if (index < emp_id.length - 1) {
-                query += ', ';
+                checkQuery += ', ';
             }
-            completedQueries ++
+        });
+        checkQuery += ')';
+
+        connection.query(checkQuery, checkValues, (err, results) => {
+            if (err) {
+                return res_base_error(res, err);
+            }
+
+            const existingPairs = results.map(row => `${row.emp_id}-${row.turn_id}`);
+            let firstInsert = true;
+
+            emp_id.forEach(id => {
+                if (!existingPairs.includes(`${id}-${turn_id}`)) {
+                    if (!firstInsert) {
+                        insertQuery += ', ';
+                    }
+                    insertQuery += '(?, ?)';
+                    insertValues.push(id, turn_id);
+                    firstInsert = false;
+                }
+            });
+            
+            if (insertValues.length > 0) {
+                connection.query(insertQuery, insertValues, (err, _results, _fields) => {
+                    if (err) {
+                        return res_base_error(res, err);
+                    }
+                    return res_sccess(res);
+                });
+            } else {
+                return res_sccess(res);
+            }
         });
 
-        if (completedQueries === emp_id.length) {
-            connection.query(
-                query,
-                (err, _results, _fields) => {
-                    if (err)
-                        return res_base_error(res, err);
-                    return res_sccess(res);
-                }
-            )
-        }
-        
-
     } catch (err) {
-        return catch_error(err);
+        return catch_error(res, err);
     }
-})
+});
+
 
 //delete datail
 app.delete('/api/delete/detail', auth, (req, res) => {
