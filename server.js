@@ -889,6 +889,56 @@ app.delete('/api/delete/detail', auth, (req, res) => {
 })
 
 
+//score
+
+//get score by emp and turn
+app.get("/api/get/score", auth, (req,res) => {
+    try{
+        const emp_id = req.query.emp_id;
+        const turn_id = req.query.turn_id;
+        if(!( emp_id&&turn_id ))
+            return res_invalid_input(res);
+
+        connection.query("select * from scores where emp_id = ? and turn_id = ?",[emp_id,turn_id],
+            (err,data) => {
+                if(err)
+                    return res_base_error(res);
+                if(data[0])
+                    data.forEach((element) => { 
+                element.score=element.score.split(",").map(Number);
+            })
+                return res_sccess_data(res,data);
+            }
+            
+        )
+    }
+    catch(err){
+        return catch_error(err);
+    }
+})
+
+//create score
+app.post('/api/create/score', auth, (req,res) => {
+    try{
+        const { score,emp_id,target_id,turn_id } = req.body;
+        if(!( score&&emp_id&&target_id&&turn_id ))
+            return res_invalid_input(res);
+        var score_t = score.toString();
+        connection.query("INSERT INTO scores(score,emp_id,target_id,turn_id) VALUES (?,?,?,?)",
+            [score_t,emp_id,target_id,turn_id],(err) => {
+                if(err)
+                    return res_base_error(res,err);
+                return res_sccess(res);
+        })
+    }
+    catch(err){
+        return catch_error(err);
+    }
+})
+
+
+
+
 //login
 
 //login
