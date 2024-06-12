@@ -573,7 +573,7 @@ app.post('/api/create/turn', auth, (req, res) => {
                             return res_base_error(res, err);
                         return res.status(200).json({
                             RespCode: 200,
-                            RespMessage: { log: 'success', id: data.length }
+                            RespMessage: { log: 'success', id: data[data.length-1].turn_id }
                         })
                     }
                 )
