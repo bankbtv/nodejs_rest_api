@@ -933,9 +933,9 @@ app.get("/api/get/score", auth, (req, res) => {
                 if (err)
                     return res_base_error(res, err);
                 if (data[0])
-                    data.forEach((element) => {
+                    data.forEach(async (element) => {
                         element.score = element.score.split(",").map(Number);
-                        element.target_id = query("select * from employees where emp_id = ?",[element.target_id]);
+                        element.target_id = await query("select * from employees where emp_id = ?",[element.target_id]);
                     })
                 return res_sccess_data(res, data);
             }
