@@ -278,9 +278,9 @@ app.get('/api/get/indicators', auth, (_req, res) => {
 })
 
 //get all indicators by ids
-app.post('/api/get/indicators/ids', (req, res) => {
+app.post('/api/get/indicators/ids', auth, (req, res) => {
     try {
-        const ids = req.body;
+        const { ids } = req.body
         if(!ids)
             return res_invalid_input(res);
         connection.query('select * from indicators where idt_id in (?) order by field (idt_id, ?)', [ids.map(Number),ids.map(Number)],
