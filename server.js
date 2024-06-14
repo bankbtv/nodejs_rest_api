@@ -281,6 +281,8 @@ app.get('/api/get/indicators', auth, (_req, res) => {
 app.get('/api/get/indicators/ids', auth, (req, res) => {
     try {
         const ids = req.query.ids;
+        if(!ids)
+            return res_invalid_input(res);
         connection.query('select * from indicators where idt_id in (?) order by field (idt_id, ?)', [ids,ids],
             (err, data, _fil) => {
                 if (err)
