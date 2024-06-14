@@ -681,6 +681,7 @@ app.delete('/api/delete/turn', auth, (req, res) => {
                     (err, _results, _fields) => {
                         if (err)
                             return res_base_error(res, err);
+                        query("delete from scores where turn_id = ?",[id])
                         connection.query(
                             "delete from turns where turn_id = ?",
                             [id],
