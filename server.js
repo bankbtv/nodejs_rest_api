@@ -929,14 +929,14 @@ app.get("/api/get/score", auth, (req, res) => {
             return res_invalid_input(res);
 
         connection.query("select * from scores where emp_id = ? and turn_id = ?", [emp_id, turn_id],
-            (err, data) => {
+            async (err, data) => {
                 if (err)
                     return res_base_error(res, err);
                 if (data[0])
-                    data.forEach(async (element) => {
+                    for(const element of data){
                         element.score = element.score.split(",").map(Number);
                         element.target_id = await query("select * from employees where emp_id = ?",[element.target_id]);
-                    })
+                    }
                 return res_sccess_data(res, data);
             }
 
