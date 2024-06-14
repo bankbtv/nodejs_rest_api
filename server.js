@@ -7,6 +7,8 @@ const jwt = require('jsonwebtoken');
 const auth = require('./middleware/auth');
 
 const app = express();
+const util = require('util');
+const { promises } = require('dns');
 // Mysql connect
 const connection = mysql.createConnection({
     host: '127.0.0.1',
@@ -23,6 +25,7 @@ connection.connect((err) => {
 })
 
 app.use(express.json());
+const query = util.promisify(connection.query).bind(connection);
 
 
 function res_sccess_data(res, data) {
@@ -69,7 +72,7 @@ function res_exit(res, message) {
     return res.status(200).json({ message: message })
 }
 
-function catch_error(err) {
+function catch_error(res, err) {
     console.log("Err :", err)
     return res.status(200).json({
         RespCode: 400,
@@ -94,7 +97,7 @@ app.get("/api/get/users", auth, (_rep, res) => {
             })
     }
     catch (err) {
-        return catch_error(err)
+        return catch_error(res, err)
     }
 })
 
@@ -116,7 +119,7 @@ app.get('/api/get/user', auth, (req, res) => {
             })
     }
     catch (err) {
-        return catch_error(err);
+        return catch_error(res, err);
     }
 })
 
@@ -148,7 +151,7 @@ app.post("/api/create/user", auth, (req, res) => {
             }
         )
     } catch (err) {
-        return catch_error(err);
+        return catch_error(res, err);
     }
 })
 
@@ -181,7 +184,7 @@ app.put("/api/update/user", auth, (req, res) => {
             }
         )
     } catch (err) {
-        return catch_error(err);
+        return catch_error(res, err);
     }
 })
 
@@ -202,7 +205,7 @@ app.put("/api/reset/user", auth, (req, res) => {
             }
         )
     } catch (err) {
-        return catch_error(err);
+        return catch_error(res, err);
     }
 })
 
@@ -222,7 +225,7 @@ app.get('/api/get/emps', auth, (_rep, res) => {
             })
     }
     catch (err) {
-        return catch_error(err);
+        return catch_error(res, err);
     }
 })
 
@@ -244,7 +247,7 @@ app.get('/api/get/emp', auth, (req, res) => {
             })
     }
     catch (err) {
-        return catch_error(err);
+        return catch_error(res, err);
     }
 
 })
@@ -270,7 +273,7 @@ app.get('/api/get/indicators', auth, (_req, res) => {
         )
     }
     catch (err) {
-        return catch_error(err);
+        return catch_error(res, err);
     }
 })
 
@@ -306,7 +309,7 @@ app.post('/api/create/indicator', auth, (req, res) => {
         )
 
     } catch (err) {
-        return catch_error(err);
+        return catch_error(res, err);
     }
 })
 
@@ -327,7 +330,7 @@ app.get('/api/get/groups', auth, (_req, res) => {
         )
     }
     catch (err) {
-        return catch_error(err);
+        return catch_error(res, err);
     }
 })
 
@@ -364,7 +367,7 @@ app.post('/api/create/group', auth, (req, res) => {
                 )
 
     } catch (err) {
-        return catch_error(err);
+        return catch_error(res, err);
     }
 })
 
@@ -385,7 +388,7 @@ app.get('/api/get/score/levels', auth, (_req, res) => {
         )
     }
     catch (err) {
-        return catch_error(err);
+        return catch_error(res, err);
     }
 })
 
@@ -447,7 +450,7 @@ app.get('/api/get/score/types', auth, (_req, res) => {
         )
     }
     catch (err) {
-        return catch_error(err);
+        return catch_error(res, err);
     }
 })
 
@@ -483,7 +486,7 @@ app.post('/api/score/type', auth, (req, res) => {
         )
 
     } catch (err) {
-        return catch_error(err);
+        return catch_error(res, err);
     }
 })
 
@@ -508,7 +511,7 @@ app.get('/api/get/turns', auth, (_req, res) => {
             }
         )
     } catch (err) {
-        return catch_error(err);
+        return catch_error(res, err);
     }
 })
 
@@ -545,7 +548,7 @@ app.get('/api/get/turns/user', auth, (req, res) => {
         )
     }
     catch (err) {
-        return catch_error(err);
+        return catch_error(res, err);
     }
 })
 
@@ -573,7 +576,7 @@ app.post('/api/create/turn', auth, (req, res) => {
                             return res_base_error(res, err);
                         return res.status(200).json({
                             RespCode: 200,
-                            RespMessage: { log: 'success', id: data[data.length-1].turn_id }
+                            RespMessage: { log: 'success', id: data[data.length - 1].turn_id }
                         })
                     }
                 )
@@ -581,7 +584,7 @@ app.post('/api/create/turn', auth, (req, res) => {
             }
         )
     } catch (err) {
-        return catch_error(err);
+        return catch_error(res, err);
     }
 })
 
@@ -618,7 +621,7 @@ app.put('/api/update/turn', auth, (req, res) => {
         )
 
     } catch (err) {
-        return catch_error(err);
+        return catch_error(res, err);
     }
 })
 
@@ -653,7 +656,7 @@ app.put('/api/update/turn/status', auth, (req, res) => {
         )
 
     } catch (err) {
-        return catch_error(err);
+        return catch_error(res, err);
     }
 })
 
@@ -692,7 +695,7 @@ app.delete('/api/delete/turn', auth, (req, res) => {
             }
         )
     } catch (err) {
-        return catch_error(err);
+        return catch_error(res, err);
     }
 })
 
@@ -713,7 +716,7 @@ app.get('/api/get/details', auth, (_req, res) => {
             }
         )
     } catch (err) {
-        return catch_error(err);
+        return catch_error(res, err);
     }
 })
 
@@ -733,7 +736,7 @@ app.get('/api/get/details/emp', auth, (req, res) => {
             }
         )
     } catch (err) {
-        return catch_error(err);
+        return catch_error(res, err);
     }
 })
 
@@ -768,7 +771,7 @@ app.get('/api/get/details/turn', auth, (req, res) => {
             }
         )
     } catch (err) {
-        return catch_error(err);
+        return catch_error(res, err);
     }
 })
 
@@ -799,7 +802,7 @@ app.post('/api/create/detail', auth, (req, res) => {
             }
         )
     } catch (err) {
-        return catch_error(err);
+        return catch_error(res, err);
     }
 })
 
@@ -848,7 +851,7 @@ app.post('/api/create/details', auth, (req, res) => {
                     firstInsert = false;
                 }
             });
-            
+
             if (insertValues.length > 0) {
                 connection.query(insertQuery, insertValues, (err, _results, _fields) => {
                     if (err) {
@@ -862,7 +865,7 @@ app.post('/api/create/details', auth, (req, res) => {
         });
 
     } catch (err) {
-        return catch_error(res, err);
+        return catch_error(res, res, err);
     }
 });
 
@@ -884,7 +887,7 @@ app.delete('/api/delete/detail', auth, (req, res) => {
             }
         )
     } catch (err) {
-        return catch_error(err);
+        return catch_error(res, err);
     }
 })
 
@@ -892,51 +895,240 @@ app.delete('/api/delete/detail', auth, (req, res) => {
 //score
 
 //get score by emp and turn
-app.get("/api/get/score", auth, (req,res) => {
-    try{
+app.get("/api/get/score", auth, (req, res) => {
+    try {
         const emp_id = req.query.emp_id;
         const turn_id = req.query.turn_id;
-        if(!( emp_id&&turn_id ))
+        if (!(emp_id && turn_id))
             return res_invalid_input(res);
 
-        connection.query("select * from scores where emp_id = ? and turn_id = ?",[emp_id,turn_id],
-            (err,data) => {
-                if(err)
-                    return res_base_error(res);
-                if(data[0])
-                    data.forEach((element) => { 
-                element.score=element.score.split(",").map(Number);
-            })
-                return res_sccess_data(res,data);
+        connection.query("select * from scores where emp_id = ? and turn_id = ?", [emp_id, turn_id],
+            (err, data) => {
+                if (err)
+                    return res_base_error(res, err);
+                if (data[0])
+                    data.forEach((element) => {
+                        element.score = element.score.split(",").map(Number);
+                    })
+                return res_sccess_data(res, data);
             }
-            
+
         )
     }
-    catch(err){
-        return catch_error(err);
+    catch (err) {
+        return catch_error(res, err);
     }
 })
 
 //create score
-app.post('/api/create/score', auth, (req,res) => {
-    try{
-        const { score,emp_id,target_id,turn_id } = req.body;
-        if(!( score&&emp_id&&target_id&&turn_id ))
+app.post('/api/create/score', auth, (req, res) => {
+    try {
+        const { score, emp_id, target_id, turn_id } = req.body;
+        if (!(score && emp_id && target_id && turn_id))
             return res_invalid_input(res);
         var score_t = score.toString();
         connection.query("INSERT INTO scores(score,emp_id,target_id,turn_id) VALUES (?,?,?,?)",
-            [score_t,emp_id,target_id,turn_id],(err) => {
-                if(err)
-                    return res_base_error(res,err);
+            [score_t, emp_id, target_id, turn_id], (err) => {
+                if (err)
+                    return res_base_error(res, err);
                 return res_sccess(res);
-        })
+            })
     }
-    catch(err){
-        return catch_error(err);
+    catch (err) {
+        return catch_error(res, err);
     }
 })
 
+//responst score
+app.get('/api/res/score', auth, async (req, res) => {
+    try {
+        const turn_id = req.query.turn_id;
+        if (!turn_id)
+            return res_invalid_input(res);
 
+        const details = await query('select * from details where turn_id = ?', [turn_id]);
+        if (!details[0]) {
+            return res_notfund(res);
+        }
+
+        const emp_ids = details.map(element => element.emp_id);
+
+        const [emps, turn] = await Promise.all([
+            query('select * from employees where emp_id in (?) order by field (emp_id, ?)', [emp_ids, emp_ids]),
+            query('select * from turns where turn_id = ?', [turn_id])
+        ]);
+        if (!turn[0]) {
+            return res_notfund(res);
+        }
+
+        const [idts, sls, sts] = await Promise.all([
+            query('select * from indicators where idt_id in (?) order by field (idt_id, ?)', [turn[0].idt_ids.split(",").map(Number), turn[0].idt_ids.split(",").map(Number)]),
+            query('select * from score_levels where sl_id in (?) order by field (sl_id, ?)', [turn[0].sl_id.split(",").map(Number), turn[0].sl_id.split(",").map(Number)]),
+            query('select * from score_types where st_id in (?) order by field (st_id, ?)', [turn[0].st_id.split(",").map(Number), turn[0].st_id.split(",").map(Number)])
+        ]);
+
+        // return res_sccess_data(res, { emps, idts, sls, sts});
+        // return res_sccess_data(res,Number(emps.find(e=>e.emp_id == 6).emp_level))
+        var emp_scores = [];
+        var have_vote = [];
+
+        for (const id of emp_ids) {
+            var data = {};
+            data.emp_id = id;
+            data.emp_type = "";
+            data.score_all = [];
+            data.score_summary = [{"summary":0}];
+            data.score_me = [{"summary":0}];
+
+            var emp = emps.find(e => e.emp_id == id);
+            var level = Number(emp.emp_level);
+            if (level)
+                if (level > 3)
+                    if (level > 5)
+                        emp.emp_type = "ບໍລິຫານລະດັບຕົ້ນ"
+                    else
+                        emp.emp_type = "ບໍລິຫານລະດັບກາງ"
+                else
+                    emp.emp_type = "ບໍລິຫານລະດັບສູງ"
+            else if (emp.emp_level == 'ວ')
+                emp.emp_type = "ລັດຖະກອນວິຊາການ"
+            else
+                emp.emp_type = "ລັດຖະກອນຊ່ວຍວຽກບໍລິຫານ"
+            data.emp_type = emp.emp_type;
+
+            // return res_sccess_data(res,Number(sls.find(sl=>sl.emp_type == data.emp_type)[`scr_g${1}`].substring(0, 2)))
+
+            var scores = await query('select * from scores where target_id = ? and turn_id = ?', [id, turn_id]);
+
+            if (scores[0]) {
+                have_vote.push({ vote: scores.length })
+                idts.forEach(indicator => {
+                    let group_all = data.score_all.find(g => g.group_id === indicator.group_id);
+                    let group_me = data.score_me.find(g => g.group_id === indicator.group_id);
+                    let group_summary = data.score_summary.find(g => g.group_id === indicator.group_id);
+
+                    if (!group_all) {
+                        group_all = {
+                            group_id: indicator.group_id,
+                            indicators: []
+                        };
+                        data.score_all.push(group_all);
+                    }
+                    if (!group_me) {
+                        group_me = {
+                            group_id: indicator.group_id,
+                            indicators: [{ summary: 0 }]
+                        };
+                        data.score_me.push(group_me);
+                    }
+                    if (!group_summary) {
+                        group_summary = {
+                            group_id: indicator.group_id,
+                            indicators: [{ summary: 0 }]
+                        };
+                        data.score_summary.push(group_summary);
+                    }
+
+                    group_all.indicators.push({
+                        idt_id: indicator.idt_id,
+                        score: 0
+                    });
+                    group_me.indicators.push({
+                        idt_id: indicator.idt_id,
+                        score: 0
+                    });
+                    group_summary.indicators.push({
+                        idt_id: indicator.idt_id,
+                        score: 0
+                    });
+                });
+
+                scores.forEach((score_data) => {
+                    var scoreArray = score_data.score.split(",").map(Number);
+                    scoreArray.forEach((element, index) => {
+                        const indicator = idts[index];
+                        if (indicator) {
+                            let group = data.score_all.find(g => g.group_id === indicator.group_id);
+                            let ind = group.indicators.find(i => i.idt_id === indicator.idt_id);
+                            ind.score += element;
+
+                            if (score_data.emp_id == id) {
+                                let group = data.score_me.find(g => g.group_id === indicator.group_id);
+                                let ind = group.indicators.find(i => i.idt_id === indicator.idt_id);
+                                ind.score += element;
+                            }
+                        }
+                    });
+                });
+
+                emp_scores.push(data);
+            }
+        }
+
+        function round(num) {
+            const integerPart = Math.floor(num);
+            const decimalPart = num - integerPart;
+
+            if (decimalPart < 0.25) {
+                return integerPart;
+            } else if (decimalPart < 0.75) {
+                return integerPart + 0.5;
+            } else {
+                return integerPart + 1;
+            }
+        }
+
+        for (const [Index, emp_score] of emp_scores.entries()) {
+            var g_sum_summary = 0;
+            var g_sum_me = 0;
+            emp_score.score_all.forEach((groups) => {
+                var sum_summary = 0;
+                var turn_summary = 0;
+                var sum_me = 0;
+                var turn_me = 0;
+                groups.indicators.forEach((inds, index) => {
+                    let group = emp_score.score_summary.find(g => g.group_id === groups.group_id);
+                    let ind = group.indicators.find(i => i.idt_id === inds.idt_id);
+                    ind.score = round(inds.score / have_vote[Index].vote);
+
+                    var persent = Number(sls.find(sl => sl.emp_type == emp_score.emp_type)[`scr_g${groups.group_id}`].substring(0, 2))
+
+                    if (ind.score >= 0) {
+                        sum_summary += ind.score;
+                        turn_summary++
+                    }
+                    if (groups.indicators.length == index + 1) {
+                        group.indicators[0].summary = round(sum_summary/turn_summary*persent/100);
+                        g_sum_summary += group.indicators[0].summary;
+                        sum_summary = 0;
+                        turn_summary = 0;
+                    }
+
+                    let group_me = emp_score.score_me.find(g => g.group_id === groups.group_id);
+                    let ind_me = group_me.indicators.find(i => i.idt_id === inds.idt_id);
+                    if (ind_me.score >= 0) {
+                        sum_me += ind_me.score;
+                        turn_me++
+                    }
+                    if (groups.indicators.length == index + 1) {
+                        group_me.indicators[0].summary = round(sum_me/turn_me*persent/100);
+                        g_sum_me += group_me.indicators[0].summary;
+                        sum_me = 0;
+                        turn_me = 0;
+                    }
+                })
+            })
+            emp_score.score_summary[0].summary = g_sum_summary;
+            emp_score.score_me[0].summary = g_sum_me;
+        }
+
+        return res_sccess_data(res, emp_scores);
+
+    }
+    catch (err) {
+        return catch_error(res, err);
+    }
+})
 
 
 //login
@@ -1005,7 +1197,7 @@ app.post('/api/login', (req, res) => {
             }
         );
     } catch (err) {
-        return catch_error(err);
+        return catch_error(res, err);
     }
 })
 
