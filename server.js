@@ -977,8 +977,8 @@ app.get('/api/res/score', auth, async (req, res) => {
             data.emp_id = id;
             data.emp_type = "";
             data.score_all = [];
-            data.score_summary = [{"summary":0}];
-            data.score_me = [{"summary":0}];
+            data.score_summary = [{ "summary": 0 }];
+            data.score_me = [{ "summary": 0 }];
 
             var emp = emps.find(e => e.emp_id == id);
             var level = Number(emp.emp_level);
@@ -1077,6 +1077,16 @@ app.get('/api/res/score', auth, async (req, res) => {
                 return integerPart + 1;
             }
         }
+        function get_type(num) {
+            var result = "";
+            sts.forEach((st, index) => {
+                var range = st.s_range.split(",").map(Number);
+                if (num >= range[0] && num <= range[1])
+                    result = sts[index].s_type;
+            })
+
+            return result;
+        }
 
         for (const [Index, emp_score] of emp_scores.entries()) {
             var g_sum_summary = 0;
@@ -1098,7 +1108,7 @@ app.get('/api/res/score', auth, async (req, res) => {
                         turn_summary++
                     }
                     if (groups.indicators.length == index + 1) {
-                        group.indicators[0].summary = round(sum_summary/turn_summary*persent/100);
+                        group.indicators[0].summary = round(sum_summary / turn_summary * persent / 100);
                         g_sum_summary += group.indicators[0].summary;
                         sum_summary = 0;
                         turn_summary = 0;
@@ -1111,7 +1121,7 @@ app.get('/api/res/score', auth, async (req, res) => {
                         turn_me++
                     }
                     if (groups.indicators.length == index + 1) {
-                        group_me.indicators[0].summary = round(sum_me/turn_me*persent/100);
+                        group_me.indicators[0].summary = round(sum_me / turn_me * persent / 100);
                         g_sum_me += group_me.indicators[0].summary;
                         sum_me = 0;
                         turn_me = 0;
@@ -1119,7 +1129,9 @@ app.get('/api/res/score', auth, async (req, res) => {
                 })
             })
             emp_score.score_summary[0].summary = g_sum_summary;
+            emp_score.score_summary[0].type = get_type(g_sum_summary);
             emp_score.score_me[0].summary = g_sum_me;
+            emp_score.score_me[0].type = get_type(g_sum_me);
         }
 
         return res_sccess_data(res, emp_scores);
