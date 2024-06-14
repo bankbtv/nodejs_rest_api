@@ -277,6 +277,29 @@ app.get('/api/get/indicators', auth, (_req, res) => {
     }
 })
 
+//get all indicators by ids
+app.get('/api/get/indicators/ids', auth, (req, res) => {
+    try {
+        const ids = req.query.ids;
+        connection.query('select * from indicators where idt_id in (?) order by field (idt_id, ?)', [ids,ids],
+            (err, data, _fil) => {
+                if (err)
+                    return res_base_error(res, err);
+                if (!(data && data[0]))
+                    return res_notfund(res);
+
+                data.forEach(element => {
+                    element.type_access = element.type_access.split(",");
+                });
+                return res_sccess_data(res, data);
+            }
+        )
+    }
+    catch (err) {
+        return catch_error(res, err);
+    }
+})
+
 //create indicator
 app.post('/api/create/indicator', auth, (req, res) => {
     try {
