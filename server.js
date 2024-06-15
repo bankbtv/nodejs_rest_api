@@ -999,16 +999,16 @@ app.get('/api/res/score', auth, async (req, res) => {
         var emp_scores = [];
         var have_vote = [];
 
-        for (const {id,index} of emp_ids) {
+        for (const {id} of emp_ids) {
             var data = {};
             data.emp_id = id;
-            data.emp_name = emps[index].emp_name;
             data.emp_type = "";
             data.score_all = [];
             data.score_summary = [{ "summary": 0 }];
             data.score_me = [{ "summary": 0 }];
 
             var emp = emps.find(e => e.emp_id == id);
+            data.emp_name = emp.emp_name;
             var level = Number(emp.emp_level);
             if (level)
                 if (level > 3)
