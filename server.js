@@ -999,9 +999,10 @@ app.get('/api/res/score', auth, async (req, res) => {
         var emp_scores = [];
         var have_vote = [];
 
-        for (const {id} of emp_ids) {
+        for (const id of emp_ids) {
             var data = {};
             data.emp_id = id;
+            data.emp_name = "";
             data.emp_type = "";
             data.score_all = [];
             data.score_summary = [{ "summary": 0 }];
