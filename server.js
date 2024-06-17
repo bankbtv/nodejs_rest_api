@@ -560,7 +560,7 @@ app.get('/api/get/turns/user', auth, (req, res) => {
                         (err, turnData, _fil) => {
                             if (err)
                                 return res_base_error(res, err);
-                            if (turnData && turnData[0] && turnData[0].status == 1)
+                            if (turnData && turnData[0])
                                 ids.push(turnData[0])
                             completedQueries++;
                             if (completedQueries === data.length) {
