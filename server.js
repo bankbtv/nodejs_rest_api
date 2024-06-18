@@ -1024,7 +1024,7 @@ app.get('/api/res/score', auth, async (req, res) => {
             else
                 emp.emp_type = "ລັດຖະກອນຊ່ວຍວຽກບໍລິຫານ"
             data.emp_type = emp.emp_type;
-            data.emp_level = level;
+            data.emp_level = emp.emp_level;
 
             // return res_sccess_data(res,Number(sls.find(sl=>sl.emp_type == data.emp_type)[`scr_g${1}`].substring(0, 2)))
 
