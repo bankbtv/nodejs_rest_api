@@ -281,9 +281,9 @@ app.get('/api/get/indicators', auth, (_req, res) => {
 app.post('/api/get/indicators/ids', auth, (req, res) => {
     try {
         const { ids } = req.body
-        if(!ids)
+        if (!ids)
             return res_invalid_input(res);
-        connection.query('select * from indicators where idt_id in (?) order by field (idt_id, ?)', [ids.map(Number),ids.map(Number)],
+        connection.query('select * from indicators where idt_id in (?) order by field (idt_id, ?)', [ids.map(Number), ids.map(Number)],
             (err, data, _fil) => {
                 if (err)
                     return res_base_error(res, err);
@@ -302,37 +302,30 @@ app.post('/api/get/indicators/ids', auth, (req, res) => {
     }
 })
 
-//create indicator
-app.post('/api/create/indicator', auth, (req, res) => {
+//update indicator
+app.put('/api/update/indicator', auth, (req, res) => {
     try {
-        const { title, type_access, group_id } = req.body;
-        if (!(title && type_access && group_id))
+        const { title, idt_id } = req.body;
+        if (!(title && idt_id))
             return res_invalid_input(res);
 
-        connection.query(
-            "insert into indicators(title,type_access,group_id) values(?,?,?)",
-            [title, type_access, group_id],
-            (err, _results, _fields) => {
+        connection.query('select * from indicators where idt_id = ?', [idt_id],
+            (err, result) => {
                 if (err)
                     return res_base_error(res, err);
-
-                connection.query('select * from indicators', [],
-                    (err, data, _fil) => {
+                if (!(result[0]))
+                    return res_notfund(res);
+                connection.query(
+                    "update indicators set title = ? where idt_id = ?) values(?,?)",
+                    [title,idt_id],
+                    (err) => {
                         if (err)
                             return res_base_error(res, err);
-
-                        connection.query('select * from indicators where idt_id = ?', [data.length],
-                            (err, data, _fil) => {
-                                if (err)
-                                    return res_base_error(res, err);
-                                return res_sccess_data(res, data);
-                            }
-                        )
+                        return res_sccess(res);
                     }
                 )
             }
         )
-
     } catch (err) {
         return catch_error(res, err);
     }
@@ -391,6 +384,35 @@ app.post('/api/create/group', auth, (req, res) => {
                     }
                 )
 
+    } catch (err) {
+        return catch_error(res, err);
+    }
+})
+
+//update group
+app.put('/api/update/group', auth, (req, res) => {
+    try {
+        const { title, group_id } = req.body;
+        if (!(title && group_id))
+            return res_invalid_input(res);
+
+        connection.query('select * from groups where group_id = ?', [group_id],
+            (err, result) => {
+                if (err)
+                    return res_base_error(res, err);
+                if (!(result[0]))
+                    return res_notfund(res);
+                connection.query(
+                    "update groups set title = ? where group_id = ?) values(?,?)",
+                    [title,group_id],
+                    (err) => {
+                        if (err)
+                            return res_base_error(res, err);
+                        return res_sccess(res);
+                    }
+                )
+            }
+        )
     } catch (err) {
         return catch_error(res, err);
     }
@@ -706,7 +728,7 @@ app.delete('/api/delete/turn', auth, (req, res) => {
                     (err, _results, _fields) => {
                         if (err)
                             return res_base_error(res, err);
-                        query("delete from scores where turn_id = ?",[id])
+                        query("delete from scores where turn_id = ?", [id])
                         connection.query(
                             "delete from turns where turn_id = ?",
                             [id],
@@ -1124,9 +1146,9 @@ app.get("/api/get/score", auth, (req, res) => {
                 if (err)
                     return res_base_error(res, err);
                 if (data[0])
-                    for(const element of data){
+                    for (const element of data) {
                         element.score = element.score.split(",").map(Number);
-                        element.target_id = (await query("select * from employees where emp_id = ?",[element.target_id]))[0];
+                        element.target_id = (await query("select * from employees where emp_id = ?", [element.target_id]))[0];
                     }
                 return res_sccess_data(res, data);
             }
