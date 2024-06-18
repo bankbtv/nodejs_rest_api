@@ -823,37 +823,6 @@ app.get('/api/get/details/turn', auth, (req, res) => {
     }
 })
 
-//creatr datail
-app.post('/api/create/detail', auth, (req, res) => {
-    try {
-        const { emp_id, turn_id } = req.body;
-        if (!(emp_id && turn_id))
-            return res_invalid_input(res);
-
-        connection.query(
-            "selete * from details where emp_id = ? and turn_id = ?",
-            [emp_id, turn_id],
-            (err, results, _fields) => {
-                if (err)
-                    return res_base_error(res, err);
-                if (results && results[0])
-                    return res_exit(res, "detail exit");
-                connection.query(
-                    "insert into details(emp_id,turn_id) values(?,?)",
-                    [emp_id, turn_id],
-                    (err, _results, _fields) => {
-                        if (err)
-                            return res_base_error(res, err);
-                        return res_sccess(res);
-                    }
-                )
-            }
-        )
-    } catch (err) {
-        return catch_error(res, err);
-    }
-})
-
 //creatr datails
 app.post('/api/create/details', auth, (req, res) => {
     try {
@@ -1015,38 +984,7 @@ app.get('/api/get/directors/turn', auth, (req, res) => {
     }
 })
 
-//creatr datail
-app.post('/api/create/director', auth, (req, res) => {
-    try {
-        const { emp_id, turn_id } = req.body;
-        if (!(emp_id && turn_id))
-            return res_invalid_input(res);
-
-        connection.query(
-            "selete * from directors where emp_id = ? and turn_id = ?",
-            [emp_id, turn_id],
-            (err, results, _fields) => {
-                if (err)
-                    return res_base_error(res, err);
-                if (results && results[0])
-                    return res_exit(res, "detail exit");
-                connection.query(
-                    "insert into directors(emp_id,turn_id) values(?,?)",
-                    [emp_id, turn_id],
-                    (err, _results, _fields) => {
-                        if (err)
-                            return res_base_error(res, err);
-                        return res_sccess(res);
-                    }
-                )
-            }
-        )
-    } catch (err) {
-        return catch_error(res, err);
-    }
-})
-
-//creatr datails
+//creatr directors
 app.post('/api/create/directors', auth, (req, res) => {
     try {
         const { emp_id, turn_id } = req.body;
