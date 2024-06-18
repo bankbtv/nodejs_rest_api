@@ -316,7 +316,7 @@ app.put('/api/update/indicator', auth, (req, res) => {
                 if (!(result[0]))
                     return res_notfund(res);
                 connection.query(
-                    "update indicators set title = ? where idt_id = ?) values(?,?)",
+                    "update indicators set title = ? where idt_id = ?",
                     [title,idt_id],
                     (err) => {
                         if (err)
@@ -403,7 +403,7 @@ app.put('/api/update/group', auth, (req, res) => {
                 if (!(result[0]))
                     return res_notfund(res);
                 connection.query(
-                    "update groups set title = ? where group_id = ?) values(?,?)",
+                    "update groups set title = ? where group_id = ?",
                     [title,group_id],
                     (err) => {
                         if (err)
