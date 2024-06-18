@@ -918,6 +918,197 @@ app.delete('/api/delete/detail', auth, (req, res) => {
 })
 
 
+//directors
+
+//get all directors
+app.get('/api/get/directors', auth, (_req, res) => {
+    try {
+        connection.query('select * from directors', [],
+            (err, data, _fil) => {
+                if (err)
+                    return res_base_error(res, err);
+                if (!(data && data[0]))
+                    return res_notfund(res);
+                return res_sccess_data(res, data);
+
+            }
+        )
+    } catch (err) {
+        return catch_error(res, err);
+    }
+})
+
+//get all directors by emp_id
+app.get('/api/get/directors/emp', auth, (req, res) => {
+    try {
+        const id = req.query.id
+        if (!(id))
+            return res_invalid_input(res);
+        connection.query('select * from directors where emp_id = ?', [id],
+            (err, data, _fil) => {
+                if (err)
+                    return res_base_error(res, err);
+                if (!(data && data[0]))
+                    return res_notfund(res);
+                return res_sccess_data(res, data);
+            }
+        )
+    } catch (err) {
+        return catch_error(res, err);
+    }
+})
+
+//get all directors by turn_id
+app.get('/api/get/directors/turn', auth, (req, res) => {
+    try {
+        const id = req.query.id
+        if (!(id))
+            return res_invalid_input(res);
+        connection.query('select * from directors where turn_id = ?', [id],
+            (err, data, _fil) => {
+                if (err)
+                    return res_base_error(res, err);
+                if (!(data && data[0]))
+                    return res_notfund(res);
+                let completedQueries = 0;
+                data.forEach((detail) => {
+                    connection.query('select * from employees where emp_id = ?;',
+                        [detail.emp_id],
+                        (err, empData, _fil) => {
+                            if (err)
+                                return res_base_error(res, err);
+                            if (empData && empData[0])
+                                detail.emp_id = empData[0];
+                            completedQueries++;
+                            if (completedQueries === data.length) {
+                                return res_sccess_data(res, data);
+                            }
+                        }
+                    )
+                })
+            }
+        )
+    } catch (err) {
+        return catch_error(res, err);
+    }
+})
+
+//creatr datail
+app.post('/api/create/director', auth, (req, res) => {
+    try {
+        const { emp_id, turn_id } = req.body;
+        if (!(emp_id && turn_id))
+            return res_invalid_input(res);
+
+        connection.query(
+            "selete * from directors where emp_id = ? and turn_id = ?",
+            [emp_id, turn_id],
+            (err, results, _fields) => {
+                if (err)
+                    return res_base_error(res, err);
+                if (results && results[0])
+                    return res_exit(res, "detail exit");
+                connection.query(
+                    "insert into directors(emp_id,turn_id) values(?,?)",
+                    [emp_id, turn_id],
+                    (err, _results, _fields) => {
+                        if (err)
+                            return res_base_error(res, err);
+                        return res_sccess(res);
+                    }
+                )
+            }
+        )
+    } catch (err) {
+        return catch_error(res, err);
+    }
+})
+
+//creatr datails
+app.post('/api/create/directors', auth, (req, res) => {
+    try {
+        const { emp_id, turn_id } = req.body;
+
+        if (!(emp_id && turn_id)) {
+            return res_invalid_input(res);
+        }
+
+        if (!Array.isArray(emp_id)) {
+            return res_invalid_input(res);
+        }
+
+        let checkQuery = 'SELECT emp_id, turn_id FROM directors WHERE (emp_id, turn_id) IN (';
+        let checkValues = [];
+        let insertQuery = 'INSERT INTO directors(emp_id, turn_id) VALUES ';
+        let insertValues = [];
+
+        emp_id.forEach((id, index) => {
+            checkQuery += '(?, ?)';
+            checkValues.push(id, turn_id);
+            if (index < emp_id.length - 1) {
+                checkQuery += ', ';
+            }
+        });
+        checkQuery += ')';
+
+        connection.query(checkQuery, checkValues, (err, results) => {
+            if (err) {
+                return res_base_error(res, err);
+            }
+
+            const existingPairs = results.map(row => `${row.emp_id}-${row.turn_id}`);
+            let firstInsert = true;
+
+            emp_id.forEach(id => {
+                if (!existingPairs.includes(`${id}-${turn_id}`)) {
+                    if (!firstInsert) {
+                        insertQuery += ', ';
+                    }
+                    insertQuery += '(?, ?)';
+                    insertValues.push(id, turn_id);
+                    firstInsert = false;
+                }
+            });
+
+            if (insertValues.length > 0) {
+                connection.query(insertQuery, insertValues, (err, _results, _fields) => {
+                    if (err) {
+                        return res_base_error(res, err);
+                    }
+                    return res_sccess(res);
+                });
+            } else {
+                return res_sccess(res);
+            }
+        });
+
+    } catch (err) {
+        return catch_error(res, res, err);
+    }
+});
+
+
+//delete datail
+app.delete('/api/delete/director', auth, (req, res) => {
+    try {
+        const id = req.query.id
+        if (!(id))
+            return res_invalid_input(res);
+
+        connection.query(
+            "delete from directors where detail_id = ?",
+            [id],
+            (err, _results, _fields) => {
+                if (err)
+                    return res_base_error(res, err);
+                return res_sccess(res);
+            }
+        )
+    } catch (err) {
+        return catch_error(res, err);
+    }
+})
+
 //score
 
 //get score by emp and turn
