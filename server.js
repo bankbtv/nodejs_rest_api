@@ -9,6 +9,7 @@ const auth = require('./middleware/auth');
 const app = express();
 const util = require('util');
 const { promises } = require('dns');
+const { log } = require('console');
 // Mysql connect
 const connection = mysql.createConnection({
     host: '127.0.0.1',
@@ -1009,9 +1010,10 @@ app.get('/api/get/directors/turn', auth, (req, res) => {
 })
 
 //creatr directors
-app.post('/api/create/directors', auth, (req, res) => {
+app.post('/api/create/directors', (req, res) => {
     try {
         const { emp_id, turn_id } = req.body;
+        const status = "D";
 
         if (!(emp_id && turn_id)) {
             return res_invalid_input(res);
@@ -1021,7 +1023,7 @@ app.post('/api/create/directors', auth, (req, res) => {
             return res_invalid_input(res);
         }
 
-        let insertQuery = 'INSERT INTO details(emp_id, turn_id) VALUES ';
+        let insertQuery = 'INSERT INTO details(emp_id, turn_id, status) VALUES ';
         let insertValues = [];
         let deleteQuery = 'DELETE FROM details WHERE (emp_id, turn_id) IN (';
         let deleteValues = [];
@@ -1030,7 +1032,6 @@ app.post('/api/create/directors', auth, (req, res) => {
             if (err) {
                 return res_base_error(res, err);
             }
-
             const existingPairs = results.map(row => `${row.emp_id}-${row.turn_id}`);
             let firstInsert = true;
 
@@ -1039,11 +1040,12 @@ app.post('/api/create/directors', auth, (req, res) => {
                     if (!firstInsert) {
                         insertQuery += ', ';
                     }
-                    insertQuery += '(?, ?)';
-                    insertValues.push(id, turn_id);
+                    insertQuery += '(?, ?, ?)';
+                    insertValues.push(id, turn_id, status);
                     firstInsert = false;
                 }
             });
+            console.log(insertQuery);
             results.forEach((data) => {
                 if (!emp_id.includes(data.emp_id)) {
                     if (deleteValues.length > 0) {
