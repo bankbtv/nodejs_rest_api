@@ -573,10 +573,11 @@ app.get('/api/get/turns', auth, (_req, res) => {
 app.get('/api/get/turns/user', auth, (req, res) => {
     try {
         const id = req.query.id
-        if (!(id))
+        const access = req.query.access
+        if (!(id&&access))
             return res_invalid_input(res);
 
-        connection.query('select * from details where emp_id = ?', [id],
+        connection.query('select * from details where emp_id = ? and status = ?', [id,access],
             (err, data, _fil) => {
                 if (err)
                     return res_base_error(res, err);
