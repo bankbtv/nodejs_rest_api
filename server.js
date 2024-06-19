@@ -1146,12 +1146,12 @@ app.get("/api/get/score", auth, (req, res) => {
 //create score
 app.post('/api/create/score', auth, (req, res) => {
     try {
-        const { score, emp_id, target_id, turn_id } = req.body;
-        if (!(score && emp_id && target_id && turn_id))
+        const { score, emp_id, target_id, turn_id, access } = req.body;
+        if (!(score && emp_id && target_id && turn_id && access))
             return res_invalid_input(res);
         var score_t = score.toString();
-        connection.query("INSERT INTO scores(score,emp_id,target_id,turn_id) VALUES (?,?,?,?)",
-            [score_t, emp_id, target_id, turn_id], (err) => {
+        connection.query("INSERT INTO scores(score,emp_id,target_id,turn_id,status) VALUES (?,?,?,?,?)",
+            [score_t, emp_id, target_id, turn_id,access], (err) => {
                 if (err)
                     return res_base_error(res, err);
                 return res_sccess(res);
