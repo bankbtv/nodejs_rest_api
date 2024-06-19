@@ -302,6 +302,28 @@ app.post('/api/get/indicators/ids', auth, (req, res) => {
     }
 })
 
+//create indicator
+app.post('/api/create/indicator', auth, (req, res) => {
+    try {
+        const { title, type_access, group_id } = req.body;
+        if (!(title && type_access && group_id))
+            return res_invalid_input(res);
+
+        connection.query(
+            "insert into indicators(title,type_access,group_id) values(?,?,?)",
+            [title, type_access, group_id],
+            (err, _results, _fields) => {
+                if (err) 
+                    return res_base_error(res,err);
+                return res_sccess(res);
+            }
+        )
+
+    } catch (err) {
+        return catch_error(res,err);
+    }
+})
+
 //update indicator
 app.put('/api/update/indicator', auth, (req, res) => {
     try {
@@ -317,7 +339,7 @@ app.put('/api/update/indicator', auth, (req, res) => {
                     return res_notfund(res);
                 connection.query(
                     "update indicators set title = ? where idt_id = ?",
-                    [title,idt_id],
+                    [title, idt_id],
                     (err) => {
                         if (err)
                             return res_base_error(res, err);
@@ -357,32 +379,16 @@ app.post('/api/create/group', auth, (req, res) => {
     try {
         const { title } = req.body;
         if (!(title))
-            return res_invalid_input(res),
-
-                connection.query(
-                    "insert into groups(title) values(?)",
-                    [title],
-                    (err, _results, _fields) => {
-                        if (err)
-                            return res_base_error(res, err);
-
-                        connection.query('select * from groups', [],
-                            (err, data, _fil) => {
-                                if (err)
-                                    return res_base_error(res, err);
-
-                                connection.query('select * from groups where group_id = ?', [data.length],
-                                    (err, data, _fil) => {
-                                        if (err)
-                                            return res_base_error(res, err);
-
-                                        return res_sccess_data(res, data);
-                                    }
-                                )
-                            }
-                        )
-                    }
-                )
+            return res_invalid_input(res);
+        connection.query(
+            "insert into groups(title) values(?)",
+            [title],
+            (err, _results, _fields) => {
+                if (err)
+                    return res_base_error(res, err);
+                return res_sccess(res);
+            }
+        )
 
     } catch (err) {
         return catch_error(res, err);
@@ -404,7 +410,7 @@ app.put('/api/update/group', auth, (req, res) => {
                     return res_notfund(res);
                 connection.query(
                     "update groups set title = ? where group_id = ?",
-                    [title,group_id],
+                    [title, group_id],
                     (err) => {
                         if (err)
                             return res_base_error(res, err);
