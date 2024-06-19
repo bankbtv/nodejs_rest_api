@@ -759,7 +759,7 @@ app.delete('/api/delete/turn', auth, (req, res) => {
 //get all details
 app.get('/api/get/details', auth, (_req, res) => {
     try {
-        connection.query('select * from details', [],
+        connection.query('select * from details where status = "U"', [],
             (err, data, _fil) => {
                 if (err)
                     return res_base_error(res, err);
@@ -780,7 +780,7 @@ app.get('/api/get/details/emp', auth, (req, res) => {
         const id = req.query.id
         if (!(id))
             return res_invalid_input(res);
-        connection.query('select * from details where emp_id = ?', [id],
+        connection.query('select * from details where status = "U" and emp_id = ?', [id],
             (err, data, _fil) => {
                 if (err)
                     return res_base_error(res, err);
@@ -800,7 +800,7 @@ app.get('/api/get/details/turn', auth, (req, res) => {
         const id = req.query.id
         if (!(id))
             return res_invalid_input(res);
-        connection.query('select * from details where turn_id = ?', [id],
+        connection.query('select * from details where status = "U" and turn_id = ?', [id],
             (err, data, _fil) => {
                 if (err)
                     return res_base_error(res, err);
@@ -842,7 +842,7 @@ app.post('/api/create/details', auth, (req, res) => {
             return res_invalid_input(res);
         }
 
-        let checkQuery = 'SELECT emp_id, turn_id FROM details WHERE (emp_id, turn_id) IN (';
+        let checkQuery = 'SELECT emp_id, turn_id FROM details WHERE status = "U" and (emp_id, turn_id) IN (';
         let checkValues = [];
         let insertQuery = 'INSERT INTO details(emp_id, turn_id) VALUES ';
         let insertValues = [];
