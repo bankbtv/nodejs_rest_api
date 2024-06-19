@@ -1012,7 +1012,6 @@ app.get('/api/get/directors/turn', auth, (req, res) => {
 app.post('/api/create/directors', auth, (req, res) => {
     try {
         const { emp_id, turn_id } = req.body;
-        const status = "D";
 
         if (!(emp_id && turn_id)) {
             return res_invalid_input(res);
@@ -1022,21 +1021,12 @@ app.post('/api/create/directors', auth, (req, res) => {
             return res_invalid_input(res);
         }
 
-        let checkQuery = 'SELECT emp_id, turn_id FROM details where status = "D" and (emp_id, turn_id) IN (';
-        let checkValues = [];
-        let insertQuery = 'INSERT INTO details(emp_id, turn_id, status) VALUES ';
+        let insertQuery = 'INSERT INTO details(emp_id, turn_id) VALUES ';
         let insertValues = [];
+        let deleteQuery = 'DELETE FROM details WHERE (emp_id, turn_id) IN (';
+        let deleteValues = [];
 
-        emp_id.forEach((id, index) => {
-            checkQuery += '(?, ?)';
-            checkValues.push(id, turn_id);
-            if (index < emp_id.length - 1) {
-                checkQuery += ', ';
-            }
-        });
-        checkQuery += ')';
-
-        connection.query(checkQuery, checkValues, (err, results) => {
+        connection.query('SELECT emp_id, turn_id FROM details WHERE status = "D" and turn_id = ?', [turn_id], (err, results) => {
             if (err) {
                 return res_base_error(res, err);
             }
@@ -1049,14 +1039,41 @@ app.post('/api/create/directors', auth, (req, res) => {
                     if (!firstInsert) {
                         insertQuery += ', ';
                     }
-                    insertQuery += '(?, ?, ?)';
-                    insertValues.push(id, turn_id, status);
+                    insertQuery += '(?, ?)';
+                    insertValues.push(id, turn_id);
                     firstInsert = false;
                 }
             });
+            results.forEach((data) => {
+                if (!emp_id.includes(data.emp_id)) {
+                    if (deleteValues.length > 0) {
+                        deleteQuery += ', ';
+                    }
+                    deleteQuery += '(?, ?)';
+                    deleteValues.push(data.emp_id, turn_id);
+                }
+            });
+            deleteQuery += ')';
 
             if (insertValues.length > 0) {
-                connection.query(insertQuery, insertValues, (err, _results, _fields) => {
+                connection.query(insertQuery, insertValues, (err) => {
+                    if (err) {
+                        return res_base_error(res, err);
+                    }
+
+                    if (deleteValues.length > 0) {
+                        connection.query(deleteQuery, deleteValues, (err) => {
+                            if (err) {
+                                return res_base_error(res, err);
+                            }
+                            return res_sccess(res);
+                        });
+                    } else {
+                        return res_sccess(res);
+                    }
+                });
+            } else if (deleteValues.length > 0) {
+                connection.query(deleteQuery, deleteValues, (err) => {
                     if (err) {
                         return res_base_error(res, err);
                     }
@@ -1065,6 +1082,7 @@ app.post('/api/create/directors', auth, (req, res) => {
             } else {
                 return res_sccess(res);
             }
+
         });
 
     } catch (err) {
