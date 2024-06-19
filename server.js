@@ -1010,7 +1010,7 @@ app.get('/api/get/directors/turn', auth, (req, res) => {
 })
 
 //creatr directors
-app.post('/api/create/directors', (req, res) => {
+app.post('/api/create/directors', auth, (req, res) => {
     try {
         const { emp_id, turn_id } = req.body;
         const status = "D";
