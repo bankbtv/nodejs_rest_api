@@ -892,7 +892,6 @@ app.post('/api/create/details', auth, (req, res) => {
     }
 });
 
-
 //delete datail
 app.delete('/api/delete/detail', auth, (req, res) => {
     try {
@@ -920,7 +919,7 @@ app.delete('/api/delete/detail', auth, (req, res) => {
 //get all directors
 app.get('/api/get/directors', auth, (_req, res) => {
     try {
-        connection.query('select * from directors', [],
+        connection.query('select * from details where status = "D"', [],
             (err, data, _fil) => {
                 if (err)
                     return res_base_error(res, err);
@@ -941,7 +940,7 @@ app.get('/api/get/directors/emp', auth, (req, res) => {
         const id = req.query.id
         if (!(id))
             return res_invalid_input(res);
-        connection.query('select * from directors where emp_id = ?', [id],
+        connection.query('select * from details where status = "D" and emp_id = ?', [id],
             (err, data, _fil) => {
                 if (err)
                     return res_base_error(res, err);
@@ -961,7 +960,7 @@ app.get('/api/get/directors/turn', auth, (req, res) => {
         const id = req.query.id
         if (!(id))
             return res_invalid_input(res);
-        connection.query('select * from directors where turn_id = ?', [id],
+        connection.query('select * from details where status = "D" and turn_id = ?', [id],
             (err, data, _fil) => {
                 if (err)
                     return res_base_error(res, err);
@@ -994,6 +993,7 @@ app.get('/api/get/directors/turn', auth, (req, res) => {
 app.post('/api/create/directors', auth, (req, res) => {
     try {
         const { emp_id, turn_id } = req.body;
+        const status = "D";
 
         if (!(emp_id && turn_id)) {
             return res_invalid_input(res);
@@ -1003,9 +1003,9 @@ app.post('/api/create/directors', auth, (req, res) => {
             return res_invalid_input(res);
         }
 
-        let checkQuery = 'SELECT emp_id, turn_id FROM directors WHERE (emp_id, turn_id) IN (';
+        let checkQuery = 'SELECT emp_id, turn_id FROM details where status = "D" and (emp_id, turn_id) IN (';
         let checkValues = [];
-        let insertQuery = 'INSERT INTO directors(emp_id, turn_id) VALUES ';
+        let insertQuery = 'INSERT INTO details(emp_id, turn_id, status) VALUES ';
         let insertValues = [];
 
         emp_id.forEach((id, index) => {
@@ -1030,8 +1030,8 @@ app.post('/api/create/directors', auth, (req, res) => {
                     if (!firstInsert) {
                         insertQuery += ', ';
                     }
-                    insertQuery += '(?, ?)';
-                    insertValues.push(id, turn_id);
+                    insertQuery += '(?, ?, ?)';
+                    insertValues.push(id, turn_id, status);
                     firstInsert = false;
                 }
             });
@@ -1049,12 +1049,11 @@ app.post('/api/create/directors', auth, (req, res) => {
         });
 
     } catch (err) {
-        return catch_error(res, res, err);
+        return catch_error(res, err);
     }
 });
 
-
-//delete datail
+//delete director
 app.delete('/api/delete/director', auth, (req, res) => {
     try {
         const id = req.query.id
@@ -1062,9 +1061,9 @@ app.delete('/api/delete/director', auth, (req, res) => {
             return res_invalid_input(res);
 
         connection.query(
-            "delete from directors where detail_id = ?",
+            "delete from details where detail_id = ?",
             [id],
-            (err, _results, _fields) => {
+            (err) => {
                 if (err)
                     return res_base_error(res, err);
                 return res_sccess(res);
