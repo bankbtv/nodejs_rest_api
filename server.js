@@ -1166,7 +1166,7 @@ app.get('/api/res/score', auth, async (req, res) => {
         if (!turn_id)
             return res_invalid_input(res);
 
-        const details = await query('select * from details where turn_id = ?', [turn_id]);
+        const details = await query('select * from details where status = "U" and turn_id = ?', [turn_id]);
         if (!details[0]) {
             return res_notfund(res);
         }
@@ -1221,7 +1221,7 @@ app.get('/api/res/score', auth, async (req, res) => {
 
             // return res_sccess_data(res,Number(sls.find(sl=>sl.emp_type == data.emp_type)[`scr_g${1}`].substring(0, 2)))
 
-            var scores = await query('select * from scores where target_id = ? and turn_id = ?', [id, turn_id]);
+            var scores = await query('select * from scores where status = "U" and target_id = ? and turn_id = ?', [id, turn_id]);
 
             if (scores[0]) {
                 have_vote.push({ vote: scores.length })
