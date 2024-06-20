@@ -1170,14 +1170,17 @@ app.get('/api/res/score', auth, async (req, res) => {
             return res_invalid_input(res);
 
         const details = await query('select * from details where status = "U" and turn_id = ?', [turn_id]);
+        const detailds = await query('select * from details where status = "D" and turn_id = ?', [turn_id]);
         if (!details[0]) {
             return res_notfund(res);
         }
 
         const emp_ids = details.map(element => element.emp_id);
+        const empd_ids = details.map(element => element.emp_id);
 
-        const [emps, turn] = await Promise.all([
+        const [emps, empds, turn] = await Promise.all([
             query('select * from employees where emp_id in (?) order by field (emp_id, ?)', [emp_ids, emp_ids]),
+            query('select * from employees where emp_id in (?) order by field (emp_id, ?)', [empd_ids, empd_ids]),
             query('select * from turns where turn_id = ?', [turn_id])
         ]);
         if (!turn[0]) {
@@ -1194,6 +1197,7 @@ app.get('/api/res/score', auth, async (req, res) => {
         // return res_sccess_data(res,Number(emps.find(e=>e.emp_id == 6).emp_level))
         var emp_scores = [];
         var have_vote = [];
+        var haved_vote = [];
 
         for (const id of emp_ids) {
             var data = {};
@@ -1203,6 +1207,7 @@ app.get('/api/res/score', auth, async (req, res) => {
             data.score_all = [];
             data.score_summary = [{ "summary": 0 }];
             data.score_me = [{ "summary": 0 }];
+            data.score_director = [{ "summary": 0 }];
 
             var emp = emps.find(e => e.emp_id == id);
             data.emp_name = emp.emp_name;
@@ -1225,13 +1230,16 @@ app.get('/api/res/score', auth, async (req, res) => {
             // return res_sccess_data(res,Number(sls.find(sl=>sl.emp_type == data.emp_type)[`scr_g${1}`].substring(0, 2)))
 
             var scores = await query('select * from scores where status = "U" and target_id = ? and turn_id = ?', [id, turn_id]);
+            var scoreds = await query('select * from scores where status = "D" and target_id = ? and turn_id = ?', [id, turn_id]);
 
             if (scores[0]) {
                 have_vote.push({ vote: scores.length })
+                haved_vote.push({ vote: scoreds.length })
                 idts.forEach(indicator => {
                     let group_all = data.score_all.find(g => g.group_id === indicator.group_id);
                     let group_me = data.score_me.find(g => g.group_id === indicator.group_id);
                     let group_summary = data.score_summary.find(g => g.group_id === indicator.group_id);
+                    let group_director = data.score_director.find(g => g.group_id === indicator.group_id);
 
                     if (!group_all) {
                         group_all = {
@@ -1254,6 +1262,13 @@ app.get('/api/res/score', auth, async (req, res) => {
                         };
                         data.score_summary.push(group_summary);
                     }
+                    if (!group_director) {
+                        group_director = {
+                            group_id: indicator.group_id,
+                            indicators: [{ summary: 0 }]
+                        };
+                        data.score_director.push(group_director);
+                    }
 
                     group_all.indicators.push({
                         idt_id: indicator.idt_id,
@@ -1264,6 +1279,10 @@ app.get('/api/res/score', auth, async (req, res) => {
                         score: 0
                     });
                     group_summary.indicators.push({
+                        idt_id: indicator.idt_id,
+                        score: 0
+                    });
+                    group_director.indicators.push({
                         idt_id: indicator.idt_id,
                         score: 0
                     });
@@ -1283,6 +1302,17 @@ app.get('/api/res/score', auth, async (req, res) => {
                                 let ind = group.indicators.find(i => i.idt_id === indicator.idt_id);
                                 ind.score += element;
                             }
+                        }
+                    });
+                });
+                scoreds.forEach((score_data) => {
+                    var scoreArray = score_data.score.split(",").map(Number);
+                    scoreArray.forEach((element, index) => {
+                        const indicator = idts[index];
+                        if (indicator) {
+                            let group = data.score_director.find(g => g.group_id === indicator.group_id);
+                            let ind = group.indicators.find(i => i.idt_id === indicator.idt_id);
+                            ind.score += element;
                         }
                     });
                 });
@@ -1317,11 +1347,15 @@ app.get('/api/res/score', auth, async (req, res) => {
         for (const [Index, emp_score] of emp_scores.entries()) {
             var g_sum_summary = 0;
             var g_sum_me = 0;
+            var g_sum_director = 0;
             emp_score.score_all.forEach((groups) => {
                 var sum_summary = 0;
                 var turn_summary = 0;
                 var sum_me = 0;
                 var turn_me = 0;
+                var sum_director = 0;
+                var turn_director = 0;
+
                 groups.indicators.forEach((inds, index) => {
                     let group = emp_score.score_summary.find(g => g.group_id === groups.group_id);
                     let ind = group.indicators.find(i => i.idt_id === inds.idt_id);
@@ -1352,12 +1386,28 @@ app.get('/api/res/score', auth, async (req, res) => {
                         sum_me = 0;
                         turn_me = 0;
                     }
+
+                    let group_director = emp_score.score_director.find(g => g.group_id === groups.group_id);
+                    let ind_director = group_director.indicators.find(i => i.idt_id === inds.idt_id);
+                    ind_director.score = round(ind_director.score / haved_vote[Index].vote);
+                    if (ind_director.score >= 0) {
+                        sum_director += ind_director.score;
+                        turn_director++
+                    }
+                    if (groups.indicators.length == index + 1) {
+                        group_director.indicators[0].summary = round(sum_director / turn_director * persent / 100);
+                        g_sum_director += group_director.indicators[0].summary;
+                        sum_director = 0;
+                        turn_director = 0;
+                    }
                 })
             })
             emp_score.score_summary[0].summary = g_sum_summary;
             emp_score.score_summary[0].type = get_type(g_sum_summary);
             emp_score.score_me[0].summary = g_sum_me;
             emp_score.score_me[0].type = get_type(g_sum_me);
+            emp_score.score_director[0].summary = g_sum_director;
+            emp_score.score_director[0].type = get_type(g_sum_director);
         }
 
         return res_sccess_data(res, emp_scores);
