@@ -574,10 +574,10 @@ app.get('/api/get/turns/user', auth, (req, res) => {
     try {
         const id = req.query.id
         const access = req.query.access
-        if (!(id&&access))
+        if (!(id && access))
             return res_invalid_input(res);
 
-        connection.query('select * from details where emp_id = ? and status = ?', [id,access],
+        connection.query('select * from details where emp_id = ? and status = ?', [id, access],
             (err, data, _fil) => {
                 if (err)
                     return res_base_error(res, err);
@@ -1151,7 +1151,7 @@ app.post('/api/create/score', auth, (req, res) => {
             return res_invalid_input(res);
         var score_t = score.toString();
         connection.query("INSERT INTO scores(score,emp_id,target_id,turn_id,status) VALUES (?,?,?,?,?)",
-            [score_t, emp_id, target_id, turn_id,access], (err) => {
+            [score_t, emp_id, target_id, turn_id, access], (err) => {
                 if (err)
                     return res_base_error(res, err);
                 return res_sccess(res);
@@ -1378,7 +1378,8 @@ app.get('/api/res/score', auth, async (req, res) => {
                         turn_me++
                     }
                     if (groups.indicators.length == index + 1) {
-                        group_me.indicators[0].summary = round(sum_me / turn_me * persent / 100);
+                        if (sum_me > 0)
+                            group_me.indicators[0].summary = round(sum_me / turn_me * persent / 100);
                         g_sum_me += group_me.indicators[0].summary;
                         sum_me = 0;
                         turn_me = 0;
@@ -1386,9 +1387,9 @@ app.get('/api/res/score', auth, async (req, res) => {
 
                     let group_director = emp_score.score_director.find(g => g.group_id === groups.group_id);
                     let ind_director = group_director.indicators.find(i => i.idt_id === inds.idt_id);
-                    if(ind_director.score > 0)
-                        ind_director.score = round(ind_director.score / haved_vote[Index].vote);
+
                     if (ind_director.score > 0) {
+                        ind_director.score = round(ind_director.score / haved_vote[Index].vote);
                         sum_director += ind_director.score;
                         turn_director++
                     }
@@ -1404,8 +1405,7 @@ app.get('/api/res/score', auth, async (req, res) => {
             emp_score.score_summary[0].type = get_type(g_sum_summary);
             emp_score.score_me[0].summary = g_sum_me;
             emp_score.score_me[0].type = get_type(g_sum_me);
-            if(g_sum_director)
-                emp_score.score_director[0].summary = g_sum_director;
+            emp_score.score_director[0].summary = g_sum_director;
             emp_score.score_director[0].type = get_type(g_sum_director);
         }
 
