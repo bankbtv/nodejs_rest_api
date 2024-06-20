@@ -1170,17 +1170,14 @@ app.get('/api/res/score', auth, async (req, res) => {
             return res_invalid_input(res);
 
         const details = await query('select * from details where status = "U" and turn_id = ?', [turn_id]);
-        const detailds = await query('select * from details where status = "D" and turn_id = ?', [turn_id]);
         if (!details[0]) {
             return res_notfund(res);
         }
 
         const emp_ids = details.map(element => element.emp_id);
-        const empd_ids = details.map(element => element.emp_id);
 
-        const [emps, empds, turn] = await Promise.all([
+        const [emps, turn] = await Promise.all([
             query('select * from employees where emp_id in (?) order by field (emp_id, ?)', [emp_ids, emp_ids]),
-            query('select * from employees where emp_id in (?) order by field (emp_id, ?)', [empd_ids, empd_ids]),
             query('select * from turns where turn_id = ?', [turn_id])
         ]);
         if (!turn[0]) {
@@ -1389,12 +1386,13 @@ app.get('/api/res/score', auth, async (req, res) => {
 
                     let group_director = emp_score.score_director.find(g => g.group_id === groups.group_id);
                     let ind_director = group_director.indicators.find(i => i.idt_id === inds.idt_id);
-                    ind_director.score = round(ind_director.score / haved_vote[Index].vote);
+                    if(ind_director.score > 0)
+                        ind_director.score = round(ind_director.score / haved_vote[Index].vote);
                     if (ind_director.score >= 0) {
                         sum_director += ind_director.score;
                         turn_director++
                     }
-                    if (groups.indicators.length == index + 1) {
+                    if (groups.indicators.length == index + 1 && sum_director > 0) {
                         group_director.indicators[0].summary = round(sum_director / turn_director * persent / 100);
                         g_sum_director += group_director.indicators[0].summary;
                         sum_director = 0;
@@ -1406,7 +1404,8 @@ app.get('/api/res/score', auth, async (req, res) => {
             emp_score.score_summary[0].type = get_type(g_sum_summary);
             emp_score.score_me[0].summary = g_sum_me;
             emp_score.score_me[0].type = get_type(g_sum_me);
-            emp_score.score_director[0].summary = g_sum_director;
+            if(g_sum_director)
+                emp_score.score_director[0].summary = g_sum_director;
             emp_score.score_director[0].type = get_type(g_sum_director);
         }
 
@@ -1446,7 +1445,7 @@ app.post('/api/login', (req, res) => {
                 const md5 = crypto.createHash('md5');
                 const password = md5.update(user_password).digest('hex');
 
-                if (!user.user_password === password) {
+                if (!(user.user_password === password)) {
                     return res.status(404).json({
                         RespCode: 404,
                         RespMessage: 'Password not match',
