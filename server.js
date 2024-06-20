@@ -1360,7 +1360,7 @@ app.get('/api/res/score', auth, async (req, res) => {
 
                     var persent = Number(sls.find(sl => sl.emp_type == emp_score.emp_type)[`scr_g${groups.group_id}`].substring(0, 2))
 
-                    if (ind.score >= 0) {
+                    if (ind.score > 0) {
                         sum_summary += ind.score;
                         turn_summary++
                     }
@@ -1373,7 +1373,7 @@ app.get('/api/res/score', auth, async (req, res) => {
 
                     let group_me = emp_score.score_me.find(g => g.group_id === groups.group_id);
                     let ind_me = group_me.indicators.find(i => i.idt_id === inds.idt_id);
-                    if (ind_me.score >= 0) {
+                    if (ind_me.score > 0) {
                         sum_me += ind_me.score;
                         turn_me++
                     }
@@ -1388,7 +1388,7 @@ app.get('/api/res/score', auth, async (req, res) => {
                     let ind_director = group_director.indicators.find(i => i.idt_id === inds.idt_id);
                     if(ind_director.score > 0)
                         ind_director.score = round(ind_director.score / haved_vote[Index].vote);
-                    if (ind_director.score >= 0) {
+                    if (ind_director.score > 0) {
                         sum_director += ind_director.score;
                         turn_director++
                     }
