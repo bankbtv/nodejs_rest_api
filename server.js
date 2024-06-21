@@ -1237,6 +1237,7 @@ app.get('/api/res/score', auth, async (req, res) => {
                 emp.emp_type = "ລັດຖະກອນຊ່ວຍວຽກບໍລິຫານ"
             data.emp_type = emp.emp_type;
             data.emp_level = emp.emp_level;
+            data.emp_ID = emp.empID;
 
             //get all score by emp_id and turn_id
             var scores = await query('select * from scores where status = "U" and target_id = ? and turn_id = ?', [id, turn_id]);
