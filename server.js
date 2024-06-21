@@ -1165,47 +1165,61 @@ app.post('/api/create/score', auth, (req, res) => {
 //responst score
 app.get('/api/res/score', auth, async (req, res) => {
     try {
+        //get in put data
         const turn_id = req.query.turn_id;
+        //check input data
         if (!turn_id)
             return res_invalid_input(res);
 
+        //get detail datas by turn_id
         const details = await query('select * from details where status = "U" and turn_id = ?', [turn_id]);
+        //check detail datas
         if (!details[0]) {
             return res_notfund(res);
         }
 
+        //get emp_ids from detail datas
         const emp_ids = details.map(element => element.emp_id);
 
+        //get emp datas and turn data by emp_ids and turn_id
         const [emps, turn] = await Promise.all([
             query('select * from employees where emp_id in (?) order by field (emp_id, ?)', [emp_ids, emp_ids]),
             query('select * from turns where turn_id = ?', [turn_id])
         ]);
+        //check turn data
         if (!turn[0]) {
             return res_notfund(res);
         }
 
+        //get indicrator datas, score_level datas and score_type datas by they ids in the turn data
         const [idts, sls, sts] = await Promise.all([
             query('select * from indicators where idt_id in (?) order by field (idt_id, ?)', [turn[0].idt_ids.split(",").map(Number), turn[0].idt_ids.split(",").map(Number)]),
             query('select * from score_levels where sl_id in (?) order by field (sl_id, ?)', [turn[0].sl_id.split(",").map(Number), turn[0].sl_id.split(",").map(Number)]),
             query('select * from score_types where st_id in (?) order by field (st_id, ?)', [turn[0].st_id.split(",").map(Number), turn[0].st_id.split(",").map(Number)])
         ]);
 
-        // return res_sccess_data(res, { emps, idts, sls, sts});
-        // return res_sccess_data(res,Number(emps.find(e=>e.emp_id == 6).emp_level))
+        //create default array to save emp scores
         var emp_scores = [];
+        //create default array to save how many emps have to vote to one emp
         var have_vote = [];
+        //create default array to save how many driectors have to vote to one emp
         var haved_vote = [];
 
+        //create loop to setup and insert emp score to emp_scores
         for (const id of emp_ids) {
+            //create object to save emp score
             var data = {};
+            //create object parameter
             data.emp_id = id;
-            data.emp_name = "";
+            data.emp_name = ""; 
             data.emp_type = "";
-            data.score_all = [];
-            data.score_summary = [{ "summary": 0 }];
-            data.score_me = [{ "summary": 0 }];
-            data.score_director = [{ "summary": 0 }];
+            data.score_all = []; //ຄະແນນລວມຫມູເພື່ອນປະເມີນ
+            data.score_summary = [{ "summary": 0 }]; //ຄະແນນສັງລວມຫມູເພື່ອນປະເມີນ
+            data.score_me = [{ "summary": 0 }]; //ຄະແນນປະເມີນຕົນເອງ
+            data.score_director = [{ "summary": 0 }]; //ຄະແນນສັງລວມກຳມະການປະເມີນ
+            data.score_level2 = [{ "summary": 0 }]; //ຄະແນນສະຫລຸບຂັ້ນສອງ
 
+            //get emp from emps by id
             var emp = emps.find(e => e.emp_id == id);
             data.emp_name = emp.emp_name;
             var level = Number(emp.emp_level);
@@ -1224,19 +1238,22 @@ app.get('/api/res/score', auth, async (req, res) => {
             data.emp_type = emp.emp_type;
             data.emp_level = emp.emp_level;
 
-            // return res_sccess_data(res,Number(sls.find(sl=>sl.emp_type == data.emp_type)[`scr_g${1}`].substring(0, 2)))
-
+            //get all score by emp_id and turn_id
             var scores = await query('select * from scores where status = "U" and target_id = ? and turn_id = ?', [id, turn_id]);
             var scoreds = await query('select * from scores where status = "D" and target_id = ? and turn_id = ?', [id, turn_id]);
 
+            //check score
             if (scores[0]) {
+                //inser how many emps and directors have vote to one emp
                 have_vote.push({ vote: scores.length })
                 haved_vote.push({ vote: scoreds.length })
+                //create loop for create default group and indicrator in any scores 
                 idts.forEach(indicator => {
                     let group_all = data.score_all.find(g => g.group_id === indicator.group_id);
                     let group_me = data.score_me.find(g => g.group_id === indicator.group_id);
                     let group_summary = data.score_summary.find(g => g.group_id === indicator.group_id);
                     let group_director = data.score_director.find(g => g.group_id === indicator.group_id);
+                    let group_level2 = data.score_level2.find(g => g.group_id === indicator.group_id);
 
                     if (!group_all) {
                         group_all = {
@@ -1266,6 +1283,13 @@ app.get('/api/res/score', auth, async (req, res) => {
                         };
                         data.score_director.push(group_director);
                     }
+                    if (!group_level2) {
+                        group_level2 = {
+                            group_id: indicator.group_id,
+                            indicators: [{ summary: 0 }]
+                        };
+                        data.score_level2.push(group_level2);
+                    }
 
                     group_all.indicators.push({
                         idt_id: indicator.idt_id,
@@ -1283,8 +1307,13 @@ app.get('/api/res/score', auth, async (req, res) => {
                         idt_id: indicator.idt_id,
                         score: 0
                     });
+                    group_level2.indicators.push({
+                        idt_id: indicator.idt_id,
+                        score: 0
+                    });
                 });
 
+                //create loop to insert score data to all indicrator in score_all and score_me
                 scores.forEach((score_data) => {
                     var scoreArray = score_data.score.split(",").map(Number);
                     scoreArray.forEach((element, index) => {
@@ -1302,6 +1331,8 @@ app.get('/api/res/score', auth, async (req, res) => {
                         }
                     });
                 });
+
+                //create loop to insert score data to all indicrator in score_director
                 scoreds.forEach((score_data) => {
                     var scoreArray = score_data.score.split(",").map(Number);
                     scoreArray.forEach((element, index) => {
@@ -1318,6 +1349,7 @@ app.get('/api/res/score', auth, async (req, res) => {
             }
         }
 
+        // function to round score by insert score for get out put is .0 and .5
         function round(num) {
             const integerPart = Math.floor(num);
             const decimalPart = num - integerPart;
@@ -1330,6 +1362,8 @@ app.get('/api/res/score', auth, async (req, res) => {
                 return integerPart + 1;
             }
         }
+
+        // function to get score_type by insert score
         function get_type(num) {
             var result = "";
             sts.forEach((st, index) => {
@@ -1341,24 +1375,39 @@ app.get('/api/res/score', auth, async (req, res) => {
             return result;
         }
 
+        //create a loop for const summary of score_summary, score_me, score_director and const sum_level2 of any emp
         for (const [Index, emp_score] of emp_scores.entries()) {
+            //set up default value for sum group of indicrator score
             var g_sum_summary = 0;
             var g_sum_me = 0;
             var g_sum_director = 0;
+            var g_sum_level2 = 0;
+
+            //create a loop for const indicrator in group of indicrator used score_all as base
             emp_score.score_all.forEach((groups) => {
+                //set up default value for sum indicrator score and how many indicrator have to sum
                 var sum_summary = 0;
                 var turn_summary = 0;
+
                 var sum_me = 0;
                 var turn_me = 0;
+
                 var sum_director = 0;
                 var turn_director = 0;
+                
+                var sum_level2 = 0;
+                var turn_level2 = 0;
 
+                //counst summary of any group indicrator in any emp
                 groups.indicators.forEach((inds, index) => {
+                    //get persent frome score_level by emp_type of any group to const
+                    var persent = Number(sls.find(sl => sl.emp_type == emp_score.emp_type)[`scr_g${groups.group_id}`].substring(0, 2));
+
+                    //const summary of score_summary
                     let group = emp_score.score_summary.find(g => g.group_id === groups.group_id);
                     let ind = group.indicators.find(i => i.idt_id === inds.idt_id);
                     ind.score = round(inds.score / have_vote[Index].vote);
 
-                    var persent = Number(sls.find(sl => sl.emp_type == emp_score.emp_type)[`scr_g${groups.group_id}`].substring(0, 2))
 
                     if (ind.score > 0) {
                         sum_summary += ind.score;
@@ -1371,6 +1420,7 @@ app.get('/api/res/score', auth, async (req, res) => {
                         turn_summary = 0;
                     }
 
+                    //const summary of score_score_me
                     let group_me = emp_score.score_me.find(g => g.group_id === groups.group_id);
                     let ind_me = group_me.indicators.find(i => i.idt_id === inds.idt_id);
                     if (ind_me.score > 0) {
@@ -1384,7 +1434,8 @@ app.get('/api/res/score', auth, async (req, res) => {
                         sum_me = 0;
                         turn_me = 0;
                     }
-
+                    
+                    //const summary of score_director
                     let group_director = emp_score.score_director.find(g => g.group_id === groups.group_id);
                     let ind_director = group_director.indicators.find(i => i.idt_id === inds.idt_id);
 
@@ -1399,14 +1450,36 @@ app.get('/api/res/score', auth, async (req, res) => {
                         sum_director = 0;
                         turn_director = 0;
                     }
+                    
+                    //const summary of score_level2
+                    let group_level2 = emp_score.score_level2.find(g => g.group_id === groups.group_id);
+                    let ind_level2 = group_level2.indicators.find(i => i.idt_id === inds.idt_id);
+                    if(ind.score > 0)
+                        ind_level2.score = round((ind.score+ind_me.score+ind_director.score)/((ind.score>0?1:0)+(ind_me.score>0?1:0)+(ind_director.score>0?1:0)));
+                    if (ind_level2.score > 0) {
+                        sum_level2 += ind_level2.score;
+                        turn_level2++
+                    }
+                    if (groups.indicators.length == index + 1 && sum_level2 > 0) {
+                        group_level2.indicators[0].summary = round(sum_level2 / turn_level2 * persent / 100);
+                        g_sum_level2 += group_level2.indicators[0].summary;
+                        sum_level2 = 0;
+                        turn_level2 = 0;
+                    }
                 })
             })
+            // add big summary and type of any scores
             emp_score.score_summary[0].summary = g_sum_summary;
             emp_score.score_summary[0].type = get_type(g_sum_summary);
+
             emp_score.score_me[0].summary = g_sum_me;
             emp_score.score_me[0].type = get_type(g_sum_me);
+            
             emp_score.score_director[0].summary = g_sum_director;
             emp_score.score_director[0].type = get_type(g_sum_director);
+
+            emp_score.score_level2[0].summary = g_sum_level2;
+            emp_score.score_level2[0].type = get_type(g_sum_level2);
         }
 
         return res_sccess_data(res, emp_scores);
