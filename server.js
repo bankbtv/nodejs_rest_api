@@ -159,8 +159,8 @@ app.post("/api/create/user", auth, (req, res) => {
 //update user
 app.put("/api/update/user", auth, (req, res) => {
     try {
-        const { user_id, user_email, user_password, access, emp_id } = req.body
-        if (!(user_id && user_email && user_password && access && emp_id))
+        const { user_id, user_email, user_password} = req.body
+        if (!(user_id && user_email && user_password))
             return res_invalid_input(res);
 
         connection.query(
@@ -173,8 +173,8 @@ app.put("/api/update/user", auth, (req, res) => {
                     return res_base_error(res, err);
 
                 connection.query(
-                    "update users set user_email = ?,user_password = MD5(?), access = ?, emp_id = ? where user_id = ?",
-                    [user_email, user_password, access, emp_id, user_id],
+                    "update users set user_email = ?,user_password = MD5(?) where user_id = ?",
+                    [user_email, user_password, user_id],
                     (err, _results, _fields) => {
                         if (err)
                             return res_base_error(res, err);
