@@ -1550,7 +1550,8 @@ app.post('/api/login', (req, res) => {
                             log: {
                                 token: token,
                                 access: user.access,
-                                employee: employee
+                                employee: employee,
+                                user: user_email
                             }
                         });
                     }
