@@ -1464,6 +1464,7 @@ app.get('/api/res/score', auth, async (req, res) => {
                     if (groups.indicators.length == index + 1 && sum_level2 > 0) {
                         group_level2.indicators[0].summary = round(sum_level2 / turn_level2 * persent / 100);
                         g_sum_level2 += group_level2.indicators[0].summary;
+                        group_level2.sum = sum_level2;
                         sum_level2 = 0;
                         turn_level2 = 0;
                     }
