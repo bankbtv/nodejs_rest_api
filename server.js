@@ -1116,6 +1116,27 @@ app.delete('/api/delete/director', auth, (req, res) => {
 
 //score
 
+//get score id by emp
+app.get("/api/get/score/check", auth, (req, res) => {
+    try {
+        const emp_id = req.query.emp_id;
+        if (!(emp_id))
+            return res_invalid_input(res);
+
+        connection.query("SELECT turn_id FROM `scores` WHERE emp_id =? GROUP BY turn_id", [emp_id],
+            async (err, data) => {
+                if (err)
+                    return res_base_error(res, err);
+                return res_sccess_data(res, data);
+            }
+
+        )
+    }
+    catch (err) {
+        return catch_error(res, err);
+    }
+})
+
 //get score by emp and turn
 app.get("/api/get/score", auth, (req, res) => {
     try {
