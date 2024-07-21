@@ -40,7 +40,7 @@ CREATE TABLE `details` (
 
 --
 -- Table structure for table `employees`
---
+-- to use need to mockup this data
 
 CREATE TABLE `employees` (
   `emp_id` int(11) NOT NULL,
